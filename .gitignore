@@ -1,4 +1,6 @@
 .vscode
-assets/
+assets/Brick_walls/
+assets/kit1/
+assets/brick-wall.png
 *.exe
 *.dll
