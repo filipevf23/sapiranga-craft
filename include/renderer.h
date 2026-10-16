@@ -15,6 +15,7 @@ private:
     std::vector<bool> should_draw;
 
 public:
+    int render_distance {32};
     Renderer();
     void update_camera(Vector3, float);
     void rotate_camera(double);

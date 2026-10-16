@@ -49,7 +49,7 @@ int World::get_height_from_pos(float x, float z) {
     int ix = (int)floor(x);
     int iz = (int)floor(z);
     int height = -1000;
-    for (int i=0; i<objects.size(); ++i) {
+    for (size_t i=0; i<objects.size(); ++i) {
         if ((int)floor(objects[i].center.x) != ix || (int)floor(objects[i].center.z) != iz)
             continue;
         if ((int)ceil(objects[i].center.y) > height) {

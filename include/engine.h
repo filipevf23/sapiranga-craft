@@ -4,7 +4,6 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include "renderer.h"
 #include "asset_manager.h"
 #include "world.h"
@@ -34,4 +33,9 @@ public:
     void update();
     void check_events(); 
     void run();
+
+    bool is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos);
+    float get_player_floor();
+    void frustum_culling();
+    void frustum_culling(Quad *object, const Vector3 *camera_pos);
 };

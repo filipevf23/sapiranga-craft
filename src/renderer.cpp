@@ -68,8 +68,10 @@ void Renderer::render(std::vector<Quad> *objects, Model model) {
     *   for every &world entity.
     *   This function must do it all, no logic in engine.cpp!
     *   
-    *   TODO: Substitute *cubes for *entities
-    *       Entity { model_id, center, size }
+    *   TODO: Substitute Quads for simple Bounding Boxes!
+    *         Check All Calculations With Bounding Boxes!
+    *         Create 1 Mesh / Chunk!
+    *         
     */
     BeginDrawing();
         BeginMode3D(camera);
@@ -83,11 +85,7 @@ void Renderer::render(std::vector<Quad> *objects, Model model) {
                     DrawModel(model, q->center, 1.0, RED);
                     continue;
                 }
-                Vector3 v1 {Vector3Subtract(q->center, camera.position)};
-                Vector3 v2 {Vector3Subtract(camera.target, camera.position)};
-                if (Vector3DotProduct(v1, v2) > 0.0f && Vector3Distance(q->center, camera.position) < 24) {
-                    DrawModel(model, q->center, 1.0, WHITE);
-                }
+                DrawModel(model, q->center, 1.0, WHITE);
             }
 		EndMode3D();
     EndDrawing();
