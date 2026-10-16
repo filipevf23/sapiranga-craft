@@ -1,9 +1,13 @@
 #pragma once
 
-#include "math_types.h"
+#include "shapes.h"
 #include <vector>
 
 namespace Algebra {
+    /*
+    *   Think about using only raymath and changing these!
+    */
+
     void rotate_square_xx(double alpha, std::vector<Line> *v, Vector3 center);
     void rotate_square_yy(double alpha, std::vector<Line> *v, Vector3 center);
     void rotate_square_zz(double alpha, std::vector<Line> *v, Vector3 center);

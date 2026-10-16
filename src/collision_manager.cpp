@@ -81,9 +81,8 @@ bool CollisionManager::point_inside_AABB(Vector3 point, BoundingBox box) {
     );
 }
 
-RayCollision CollisionManager::get_ray_collision(const Vector3 *p_eyes, const Vector3 *p_target, const Vector3 *p_size, const Quad *object) {
-    Vector3 face = Vector3Add(*p_eyes, {.x=p_size->x/2.0f, .y=0.0f, .z = p_size->z/2.0f});
-    Ray ray = Ray{face, Algebra::normalize(Vector3Subtract(*p_target, face))};
+RayCollision CollisionManager::get_ray_collision(const Vector3 *p_eyes, const Vector3 *p_target, const Quad *object) {
+    Ray ray = Ray{*p_eyes, Algebra::normalize(Vector3Subtract(*p_target, *p_eyes))};
     RayCollision rc = GetRayCollisionBox(ray, get_bounding_box(object));
     return rc;
 }

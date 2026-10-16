@@ -10,7 +10,7 @@ Color line_color = {.r=255, .g=0, .b=0, .a=255};
 
 Renderer::Renderer() {
     Vector3 center = {0,1.7,10};
-    camera.position = (Vector3){ 2.5, 1.7, 4.5 };
+    camera.position = (Vector3){ 2.5, 1.7, 4.6 };
     camera.target = center;
     camera.up = (Vector3){ 0.0, 1.0, 0.0 };
     camera.fovy = 70.0;

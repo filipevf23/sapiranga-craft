@@ -12,7 +12,7 @@ public:
     Vector3 size = { 0.2f, 1.8f, 0.2f };
     float half_size_y = 0.9f;
     Vector3 position = { 2.5f, 0.9f, 4.5f };
-    Vector3 eye_position = { 2.5f, 1.7f, 4.5f };
+    Vector3 eye_position = { 2.5f, 1.7f, 4.6f };
     Vector3 target = { 0, 1.7, 10 };
     float speed = 5.0f;
     int looking_at; // index of object that player is looking at

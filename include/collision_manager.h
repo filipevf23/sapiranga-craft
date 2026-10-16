@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math_types.h"
+#include "shapes.h"
 
 namespace CollisionManager {
     
@@ -13,5 +13,5 @@ namespace CollisionManager {
     BoundingBox get_bounding_box(const Quad*);
     BoundingBox get_bounding_box(const Vector3*, const Vector3*);
     bool point_inside_AABB(Vector3, BoundingBox);
-    RayCollision get_ray_collision(const Vector3 *p_eyes, const Vector3 *p_target, const Vector3 *p_size, const Quad *object);
+    RayCollision get_ray_collision(const Vector3 *p_eyes, const Vector3 *p_target, const Quad *object);
 };

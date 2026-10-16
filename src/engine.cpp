@@ -1,11 +1,11 @@
 #include "engine.h"
 #include <iostream>
-#include "collision_manager.h"
-#include "linear_algebra.h"
-#include "utils.h"
 #include <math.h>
 #include <algorithm>
 #include "raymath.h"
+#include "collision_manager.h"
+#include "linear_algebra.h"
+#include "utils.h"
 
 
 using std::cout, std::endl;
@@ -124,7 +124,7 @@ void Engine::update() {
 
 
         // is player looking at this object?
-        RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &player.size, &world.objects[i]);
+        RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &world.objects[i]);
         if (rc.hit) {
             if (rc.distance < aim_dist) {
                 aim_dist = rc.distance;
