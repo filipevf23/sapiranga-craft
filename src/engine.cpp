@@ -48,7 +48,7 @@ float Engine::get_player_floor() {
     return std::max({h1, h2, h3, h4});
 }
 
-void Engine::frustum_culling(Quad *object, const Vector3 *camera_pos) {
+void Engine::frustum_culling(Block *object, const Vector3 *camera_pos) {
     Vector3 v1 {Vector3Subtract(object->center, *camera_pos)};
     Vector3 v2 {Vector3Subtract(renderer.get_target(), *camera_pos)};
     object->show = Vector3DotProduct(v1, v2) > 0.0f && Vector3Distance(object->center, *camera_pos) <= renderer.render_distance;
@@ -104,27 +104,21 @@ void Engine::update() {
         
     }
 
-    Quad player_object = create_quad(player.position, player.size);
+    Block player_object {player.position, player.size};
     Vector3 reaction_vector {0,0,0};
     float aim_dist = 1000.0f;
     player.looking_at = -1;
 
     Vector3 camera_pos = renderer.get_camera_position();
     for (size_t i=0; i<world.objects.size(); ++i) {
-        Quad *object = &world.objects[i];
-
-        /*
-            A CAMERA ESTÁ ERRADA! ELA TA DENTRO DA CABEÇA E NÃO NOS OLHOS!
-            AJEITAR ASSIM QUE PUDER!
-        */
+        Block *object = &world.objects[i];
 
         // Culling Pipeline
         frustum_culling(object, &camera_pos);
         
 
-
         // is player looking at this object?
-        RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &world.objects[i]);
+        RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &object->bb);
         if (rc.hit) {
             if (rc.distance < aim_dist) {
                 aim_dist = rc.distance;
@@ -159,8 +153,6 @@ void Engine::update() {
         renderer.set_target_position(player.collision_reaction(reaction_vector));
         player.collision = false;
     }
-
-    destroy_quad(&player_object);
     
     renderer.set_camera_position(player.eye_position);
     renderer.update_camera(player.eye_position, mouse_sensitivity);

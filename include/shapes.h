@@ -17,6 +17,31 @@ struct Quad {
     bool show;
 };
 
+struct Block {
+    Vector3 center;
+    Vector3 size;
+    bool show;
+    BoundingBox bb;
+    Block(Vector3 c, Vector3 s) {
+        center = c;
+        size = s;
+        Vector3 min {
+            .x = center.x - size.x/2,
+            .y = center.y - size.y/2,
+            .z = center.z - size.z/2,
+        }, 
+        max {
+            .x = center.x + size.x/2,
+            .y = center.y + size.y/2,
+            .z = center.z + size.z/2,
+        };
+        bb = {min, max};
+        show = true;
+    }
+    Block(Vector3 c, float s) : Block(c, {s, s, s}) {
+    }
+};
+
 struct Sphere {
     Line *lines;
     double radius;

@@ -15,7 +15,7 @@ void World::test_world() {
     for (int i=0; i<MAP_Y; i++) {
         for (int j=0; j<MAP_X; j++) {
             for (int k=0; k<8; k++) {
-                objects.push_back(create_quad({.x=i+0.5f, .y=(-k-0.5f), .z=j+0.5f}, 1.0f));
+                objects.push_back({{i+0.5f, (-k-0.5f), j+0.5f}, 1.0f});
             }
         }
     }
@@ -26,7 +26,7 @@ void World::test_world() {
     for (int i=0; i<MAP_Y; i++) {
         for (int j=0; j<MAP_X; j++) {
             if (Map[i][j] == 0) continue;
-            objects.push_back(create_quad({.x=i+0.5f, .y=0.5f, .z=j+0.5f}, 1.0f));
+            objects.push_back({{i+0.5f, 0.5f, j+0.5f}, 1.0f});
         }
     }
 }
@@ -76,7 +76,7 @@ void World::generate_chunk(int x, int z) {
                 float real_x = x * chunk_size + i + 0.5f;
                 float real_z = z * chunk_size + j + 0.5f;
                 float real_y = hs[i*chunk_size + j] - k - 0.5f;
-                objects.push_back(create_quad({.x=real_x, .y=real_y, .z=real_z}, 1.0f));
+                objects.push_back({{real_x, real_y, real_z}, 1.0f});
             }
         }
     }

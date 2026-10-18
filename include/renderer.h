@@ -12,7 +12,6 @@ class Renderer {
 private:
     Camera3D camera = { 0 };
     int specific = -1;
-    std::vector<bool> should_draw;
 
 public:
     int render_distance {32};
@@ -28,5 +27,5 @@ public:
     void set_camera_position(Vector3);
     void set_target_position(Vector3);
     void specific_render(int);
-    void render(std::vector<Quad>*, Model);
+    void render(std::vector<Block>*, Model);
 };

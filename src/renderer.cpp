@@ -61,15 +61,14 @@ void Renderer::specific_render(int i) {
     specific = i;
 }
 
-void Renderer::render(std::vector<Quad> *objects, Model model) {
+void Renderer::render(std::vector<Block> *objects, Model model) {
 
     /*
     *   Create entity-model relationship
     *   for every &world entity.
     *   This function must do it all, no logic in engine.cpp!
     *   
-    *   TODO: Substitute Quads for simple Bounding Boxes!
-    *         Check All Calculations With Bounding Boxes!
+    *   TODO: Create function render_chunk()?
     *         Create 1 Mesh / Chunk!
     *         
     */
@@ -77,7 +76,7 @@ void Renderer::render(std::vector<Quad> *objects, Model model) {
         BeginMode3D(camera);
             ClearBackground(bg_color);
             for (int i=0; i<(int)objects->size(); ++i) {
-                Quad *q = &(*objects)[i];
+                Block *q = &(*objects)[i];
                 if (!q->show) {
                     continue;
                 }

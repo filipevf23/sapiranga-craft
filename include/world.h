@@ -7,7 +7,7 @@
 
 class World {
 public:
-    std::vector<Quad> objects;
+    std::vector<Block> objects;
     bool gravity;
     double gravity_force;
     double floor_height = 0.0;

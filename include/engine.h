@@ -36,6 +36,5 @@ public:
 
     bool is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos);
     float get_player_floor();
-    void frustum_culling();
-    void frustum_culling(Quad *object, const Vector3 *camera_pos);
+    void frustum_culling(Block *object, const Vector3 *camera_pos);
 };
