@@ -21,8 +21,10 @@ struct Block {
     Vector3 center;
     Vector3 size;
     bool show;
+    bool active;
     BoundingBox bb;
-    Block(Vector3 c, Vector3 s) {
+
+    Block(Vector3 c, Vector3 s, bool sh=false) {
         center = c;
         size = s;
         Vector3 min {
@@ -36,9 +38,10 @@ struct Block {
             .z = center.z + size.z/2,
         };
         bb = {min, max};
-        show = true;
+        show = sh;
+        active = true;
     }
-    Block(Vector3 c, float s) : Block(c, {s, s, s}) {
+    Block(Vector3 c, float s, bool sh=false) : Block(c, {s, s, s}, sh) {
     }
 };
 

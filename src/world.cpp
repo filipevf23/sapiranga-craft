@@ -32,7 +32,7 @@ void World::test_world() {
 }
 
 void World::break_block(int i) {
-    objects.erase(objects.begin() + i);
+    objects[i].active = false;
     floor_objects_count--;
 }
 
@@ -76,7 +76,34 @@ void World::generate_chunk(int x, int z) {
                 float real_x = x * chunk_size + i + 0.5f;
                 float real_z = z * chunk_size + j + 0.5f;
                 float real_y = hs[i*chunk_size + j] - k - 0.5f;
-                objects.push_back({{real_x, real_y, real_z}, 1.0f});
+                Block b {{real_x, real_y, real_z}, 1.0f};
+                objects.push_back(b);
+            }
+        }
+    }
+    for (int i=0; i<chunk_size; i++) {
+        for (int j=0; j<chunk_size; j++) {
+            for (int k=0; k<chunk_size; k++) {
+
+                // Setting the neighbors
+                int array_offset = objects.size() - chunk_size*chunk_size*chunk_size;
+                Block *b = &objects[array_offset + i*chunk_size*chunk_size+j*chunk_size+k];
+                
+                int front_i = i+1;
+                int back_i = i-1;
+                int up_k = k+1;
+                int down_k = k-1;
+                int left_j = j-1;
+                int right_j = j+1;
+                if ((front_i >= 0 && front_i < chunk_size && objects[array_offset + front_i*chunk_size*chunk_size+j*chunk_size+k].active)
+                    && (back_i >= 0 && back_i < chunk_size && objects[array_offset + back_i*chunk_size*chunk_size+j*chunk_size+k].active)
+                    && (up_k >= 0 && up_k < chunk_size && objects[array_offset + i*chunk_size*chunk_size+j*chunk_size+up_k].active)
+                    && (down_k >= 0 && down_k < chunk_size && objects[array_offset + i*chunk_size*chunk_size+j*chunk_size+down_k].active)
+                    && (left_j >= 0 && left_j < chunk_size && objects[array_offset + i*chunk_size*chunk_size+left_j*chunk_size+k].active)
+                    && (right_j >= 0 && right_j < chunk_size && objects[array_offset + i*chunk_size*chunk_size+right_j*chunk_size+k].active)
+                ) {
+                    b->show = false;
+                }
             }
         }
     }

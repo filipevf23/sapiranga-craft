@@ -85,7 +85,9 @@ void Renderer::render(std::vector<Block> *objects, Model model) {
                     continue;
                 }
                 DrawModel(model, q->center, 1.0, WHITE);
+                
             }
 		EndMode3D();
+        DrawFPS(20,20);
     EndDrawing();
 }

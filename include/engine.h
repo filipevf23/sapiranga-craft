@@ -25,9 +25,6 @@ private:
     float mouse_sensitivity {0.05};
     bool break_block_command = false;
 
-    // Player logic that will later be separated
-    
-
 public:
     void init();
     void update();
@@ -37,4 +34,5 @@ public:
     bool is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos);
     float get_player_floor();
     void frustum_culling(Block *object, const Vector3 *camera_pos);
+    void occlusion_culling(Block *object);
 };

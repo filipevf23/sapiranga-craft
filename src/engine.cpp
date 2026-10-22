@@ -54,6 +54,9 @@ void Engine::frustum_culling(Block *object, const Vector3 *camera_pos) {
     object->show = Vector3DotProduct(v1, v2) > 0.0f && Vector3Distance(object->center, *camera_pos) <= renderer.render_distance;
 }
 
+void Engine::occlusion_culling(Block *object) {
+    
+}
 
 //////////////  Engine Pipeline   ///////////////
 
@@ -112,10 +115,12 @@ void Engine::update() {
     Vector3 camera_pos = renderer.get_camera_position();
     for (size_t i=0; i<world.objects.size(); ++i) {
         Block *object = &world.objects[i];
-
+        if (!object->active)
+            continue;
+            
         // Culling Pipeline
         frustum_culling(object, &camera_pos);
-        
+        //occlusion_culling(object);
 
         // is player looking at this object?
         RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &object->bb);
