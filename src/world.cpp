@@ -95,14 +95,23 @@ void World::generate_chunk(int x, int z) {
                 int down_k = k-1;
                 int left_j = j-1;
                 int right_j = j+1;
-                if ((front_i >= 0 && front_i < chunk_size && objects[array_offset + front_i*chunk_size*chunk_size+j*chunk_size+k].active)
-                    && (back_i >= 0 && back_i < chunk_size && objects[array_offset + back_i*chunk_size*chunk_size+j*chunk_size+k].active)
-                    && (up_k >= 0 && up_k < chunk_size && objects[array_offset + i*chunk_size*chunk_size+j*chunk_size+up_k].active)
-                    && (down_k >= 0 && down_k < chunk_size && objects[array_offset + i*chunk_size*chunk_size+j*chunk_size+down_k].active)
-                    && (left_j >= 0 && left_j < chunk_size && objects[array_offset + i*chunk_size*chunk_size+left_j*chunk_size+k].active)
-                    && (right_j >= 0 && right_j < chunk_size && objects[array_offset + i*chunk_size*chunk_size+right_j*chunk_size+k].active)
-                ) {
-                    b->show = false;
+
+                if (front_i >= 0 && front_i < chunk_size)
+                    b->front = front_i*chunk_size*chunk_size + j*chunk_size + k + array_offset;
+                if (back_i >= 0 && back_i < chunk_size)
+                    b->back = back_i*chunk_size*chunk_size + j*chunk_size + k + array_offset;
+                if (up_k >= 0 && up_k < chunk_size)
+                    b->up = i*chunk_size*chunk_size + j*chunk_size + up_k + array_offset;
+                if (down_k >= 0 && down_k < chunk_size)
+                    b->down = i*chunk_size*chunk_size + j*chunk_size + down_k + array_offset;
+                if (left_j >= 0 && left_j < chunk_size)
+                    b->left = i*chunk_size*chunk_size + left_j*chunk_size + k + array_offset;
+                if (right_j >= 0 && right_j < chunk_size)
+                    b->right = i*chunk_size*chunk_size + right_j*chunk_size + k + array_offset;
+
+                if (b->front != -1 && b->back != -1 && b->up != -1 && b->down != -1 && b->left != -1 && b->right != -1) {
+                    if (objects[b->front].active && objects[b->back].active && objects[b->up].active && objects[b->down].active && objects[b->left].active && objects[b->right].active)
+                        b->show = false;
                 }
             }
         }

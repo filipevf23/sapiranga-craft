@@ -77,7 +77,7 @@ void Renderer::render(std::vector<Block> *objects, Model model) {
             ClearBackground(bg_color);
             for (int i=0; i<(int)objects->size(); ++i) {
                 Block *q = &(*objects)[i];
-                if (!q->show) {
+                if (!q->show || !q->active) {
                     continue;
                 }
                 if (specific != -1 && i == specific) {

@@ -23,7 +23,7 @@ struct Block {
     bool show;
     bool active;
     BoundingBox bb;
-
+    int front, back, up, down, left, right;
     Block(Vector3 c, Vector3 s, bool sh=false) {
         center = c;
         size = s;
@@ -40,6 +40,7 @@ struct Block {
         bb = {min, max};
         show = sh;
         active = true;
+        front= back= up= down= left= right= -1;
     }
     Block(Vector3 c, float s, bool sh=false) : Block(c, {s, s, s}, sh) {
     }
