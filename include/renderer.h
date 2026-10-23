@@ -28,5 +28,4 @@ public:
     void set_target_position(Vector3);
     void specific_render(int);
     void render(Model &model);
-    void render(std::vector<Block>&, Model);
 };

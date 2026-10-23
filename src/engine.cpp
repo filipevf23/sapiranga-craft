@@ -14,7 +14,7 @@ using std::cout, std::endl;
 void Engine::init() {
     float fh = get_player_floor();
     player.position.y = fh + player.half_size_y;
-    player.target.y = fh + player.half_size_y;
+    player.target.y = player.position.y + player.eye_height;
     player.is_falling = false;
     player.fall_speed = 0.0f;
     player.eye_position = {player.position.x, player.position.y + player.eye_height, player.position.z + 0.1f};

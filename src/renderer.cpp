@@ -9,8 +9,8 @@ Color wall_color = {.r=255, .g=255, .b=255, .a=255};
 Color line_color = {.r=255, .g=0, .b=0, .a=255};
 
 Renderer::Renderer() {
-    camera.position = (Vector3){ 2.5, 1.7, 4.6 };
-    camera.target = {1.0,1.7,0.0};
+    camera.position = (Vector3){ 2.5, 1.62, 4.6 };
+    camera.target = {1.0,1.62,0.0};
     camera.up = (Vector3){ 0.0, 1.0, 0.0 };
     camera.fovy = 70.0;
     camera.projection = CAMERA_PERSPECTIVE;
@@ -61,42 +61,16 @@ void Renderer::specific_render(int i) {
 }
 
 void Renderer::render(Model &model) {
+    static int aim_size = 24;
+    static int aim_width = 2;
+
     BeginDrawing();
         BeginMode3D(camera);
             ClearBackground(bg_color);
             DrawModel(model, {0,0,0}, 1.0f, WHITE);
         EndMode3D();
         DrawFPS(10,10);
-    EndDrawing();
-}
-
-void Renderer::render(std::vector<Block> &objects, Model model) {
-
-    /*
-    *   Create entity-model relationship
-    *   for every &world entity.
-    *   This function must do it all, no logic in engine.cpp!
-    *   
-    *   TODO: Create function render_chunk()?
-    *         Create 1 Mesh / Chunk!
-    *         
-    */
-    BeginDrawing();
-        BeginMode3D(camera);
-            ClearBackground(bg_color);
-            for (int i=0; i<(int)objects.size(); ++i) {
-                Block *q = &objects[i];
-                if (!q->show || !q->active) {
-                    continue;
-                }
-                if (specific != -1 && i == specific) {
-                    DrawModel(model, q->center, 1.0, RED);
-                    continue;
-                }
-                DrawModel(model, q->center, 1.0, WHITE);
-                
-            }
-		EndMode3D();
-        DrawFPS(20,20);
+        DrawRectangle((GetScreenWidth() - aim_size) / 2, (GetScreenHeight() - aim_width) / 2, aim_size, aim_width, GRAY);
+        DrawRectangle((GetScreenWidth() - aim_width) / 2, (GetScreenHeight() - aim_size) / 2, aim_width, aim_size, GRAY);
     EndDrawing();
 }
