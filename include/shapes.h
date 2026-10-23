@@ -5,6 +5,17 @@
 #include "raylib.h"
 #include <vector>
 
+enum BlockID {
+    B_DIRT,
+    B_GRASS,
+    B_STONE,
+    B_COBBLESTONE,
+    B_PODZOL,
+    B_WOOD_OAK,
+    B_PLANK_OAK,
+    B_DROPPER,
+};
+
 struct Line {
     Vector3 p0, p1;
 };
@@ -24,7 +35,8 @@ struct Block {
     bool active;
     BoundingBox bb;
     int front, back, up, down, left, right;
-    Block(Vector3 c, Vector3 s, bool sh=false) {
+    int texture_id;
+    Block(Vector3 c, Vector3 s, int tid, bool act) {
         center = c;
         size = s;
         Vector3 min {
@@ -38,11 +50,12 @@ struct Block {
             .z = center.z + size.z/2,
         };
         bb = {min, max};
-        show = sh;
-        active = true;
+        show = false;
+        active = act;
         front= back= up= down= left= right= -1;
+        texture_id = tid;
     }
-    Block(Vector3 c, float s, bool sh=false) : Block(c, {s, s, s}, sh) {
+    Block(Vector3 c, float s, int tid, bool act) : Block(c, {s, s, s}, tid, act) {
     }
 };
 

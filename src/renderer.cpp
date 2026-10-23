@@ -9,9 +9,8 @@ Color wall_color = {.r=255, .g=255, .b=255, .a=255};
 Color line_color = {.r=255, .g=0, .b=0, .a=255};
 
 Renderer::Renderer() {
-    Vector3 center = {0,1.7,10};
     camera.position = (Vector3){ 2.5, 1.7, 4.6 };
-    camera.target = center;
+    camera.target = {1.0,1.7,0.0};
     camera.up = (Vector3){ 0.0, 1.0, 0.0 };
     camera.fovy = 70.0;
     camera.projection = CAMERA_PERSPECTIVE;
@@ -61,7 +60,17 @@ void Renderer::specific_render(int i) {
     specific = i;
 }
 
-void Renderer::render(std::vector<Block> *objects, Model model) {
+void Renderer::render(Model &model) {
+    BeginDrawing();
+        BeginMode3D(camera);
+            ClearBackground(bg_color);
+            DrawModel(model, {0,0,0}, 1.0f, WHITE);
+        EndMode3D();
+        DrawFPS(10,10);
+    EndDrawing();
+}
+
+void Renderer::render(std::vector<Block> &objects, Model model) {
 
     /*
     *   Create entity-model relationship
@@ -75,8 +84,8 @@ void Renderer::render(std::vector<Block> *objects, Model model) {
     BeginDrawing();
         BeginMode3D(camera);
             ClearBackground(bg_color);
-            for (int i=0; i<(int)objects->size(); ++i) {
-                Block *q = &(*objects)[i];
+            for (int i=0; i<(int)objects.size(); ++i) {
+                Block *q = &objects[i];
                 if (!q->show || !q->active) {
                     continue;
                 }

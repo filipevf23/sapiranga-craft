@@ -4,23 +4,27 @@
 #include <vector>
 #include "shapes.h"
 
+#define CHUNK_SIZE 16
 
 class World {
 public:
     std::vector<Block> objects;
     bool gravity;
-    double gravity_force;
+    float gravity_force;
     double floor_height = 0.0;
-    size_t floor_objects_count;
     int seed;
+    int chunks_y;
+    int chunks_x;
+    int chunks_z;
 
-    World(bool=false, double=9.81);
+    World(bool=false, float=9.81f);
     
-    void test_world();
     void break_block(int i);
     int get_height_from_block_and_seed(int, int);
     int get_height_from_block_and_seed(Vector3);
-    int get_height_from_pos(float x, float z);
-    void generate_chunk(int, int);
+    int get_height_from_pos(float x, float y, float z);
+    void generate_chunk(int, int, int);
+    int get_block_index(int global_x, int global_y, int global_z);
+    void get_neighbors();
     void generate_overworld();
 };

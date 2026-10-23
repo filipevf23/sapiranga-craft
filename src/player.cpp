@@ -38,7 +38,7 @@ Vector3 Player::move_backward(float s) {
     return target;
 }
 
-Vector3 Player::move_up(float s) {
+Vector3 Player::move_y(float s) {
     position.y += s;
     eye_position.y += s;
     target.y += s;

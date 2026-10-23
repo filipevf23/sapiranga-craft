@@ -20,10 +20,11 @@ class Engine {
 private:
     Renderer renderer;
     AssetManager asset_manager;
-    World world {true, 0.981};
+    World world {true, 32.0f};
     Player player;
     float mouse_sensitivity {0.05};
     bool break_block_command = false;
+    Model map_model;
 
 public:
     void init();
@@ -31,8 +32,7 @@ public:
     void check_events(); 
     void run();
 
+    void generate_map_mesh();
     bool is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos);
     float get_player_floor();
-    void frustum_culling(Block *object, const Vector3 *camera_pos);
-    void occlusion_culling(Block *object);
 };

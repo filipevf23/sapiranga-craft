@@ -25,6 +25,10 @@ bool CollisionManager::check_collision(Sphere *s, Block *c) {
     return check_collision(c, s);
 }
 
+bool CollisionManager::check_collision(BoundingBox *s, Block *c) {
+    return CheckCollisionBoxes(*s, c->bb);
+}
+
 Vector3 CollisionManager::get_reaction_vector(const Sphere *s, Block *c) {
     Ray ray = Ray{s->center, Algebra::normalize(Vector3Subtract(c->center, s->center))};
     RayCollision rc = GetRayCollisionBox(ray, c->bb);
@@ -45,6 +49,24 @@ Vector3 CollisionManager::get_reaction_vector(const Block*s, Block *c) {
         push.y = (s->center.y < c->center.y) ? -overlapY : overlapY;
     } else {
         push.z = (s->center.z < c->center.z) ? -overlapZ : overlapZ;
+    }
+    return push;
+}
+
+Vector3 CollisionManager::get_reaction_vector(const BoundingBox*s, Block *c) {
+
+    float overlapX = std::min(s->max.x - c->bb.min.x, c->bb.max.x - s->min.x);
+    float overlapY = std::min(s->max.y - c->bb.min.y, c->bb.max.y - s->min.y);
+    float overlapZ = std::min(s->max.z - c->bb.min.z, c->bb.max.z - s->min.z);
+
+    Vector3 push {0,0,0};
+    Vector3 center = Vector3Add(s->min, Vector3Subtract(s->max, s->min));
+    if (overlapX < overlapY && overlapX < overlapZ) {
+        push.x = (center.x < c->center.x) ? -overlapX : overlapX;
+    } else if (overlapY < overlapX && overlapY < overlapZ) {
+        push.y = (center.y < c->center.y) ? -overlapY : overlapY;
+    } else {
+        push.z = (center.z < c->center.z) ? -overlapZ : overlapZ;
     }
     return push;
 }

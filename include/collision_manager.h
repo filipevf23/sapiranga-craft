@@ -8,8 +8,10 @@ namespace CollisionManager {
     bool check_collision(Sphere*, Sphere*);
     bool check_collision(Block*, Sphere*);
     bool check_collision(Sphere*, Block*);
+    bool check_collision(BoundingBox*, Block*);
     Vector3 get_reaction_vector(const Sphere*, Block*);
     Vector3 get_reaction_vector(const Block*, Block*);
+    Vector3 get_reaction_vector(const BoundingBox*s, Block *c);
     BoundingBox get_bounding_box(const Quad*);
     BoundingBox get_bounding_box(const Vector3*, const Vector3*);
     bool point_inside_AABB(Vector3, BoundingBox);
