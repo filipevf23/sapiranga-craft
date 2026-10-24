@@ -25,7 +25,8 @@ void Engine::init() {
 }
 
 
-//////////////  Util  ///////////////
+
+//////////////  Util  ////////////////
 
 bool Engine::is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos) {
     Vector3 normal = Vector3Subtract(*face_center, *object_center);
@@ -37,15 +38,13 @@ float Engine::get_player_floor() {
     // check 4 vertices of player:
     float px = player.position.x;
     float pz = player.position.z;
-    float py = player.position.y;
     float hsx = player.size.x / 2.0f;
-    float hsy = player.size.y / 2.0f;
     float hsz = player.size.z / 2.0f;
 
-    float h1 = world.get_height_from_pos(px-hsx, py-hsy, pz-hsz);
-    float h2 = world.get_height_from_pos(px-hsx, py-hsy, pz+hsz);
-    float h3 = world.get_height_from_pos(px+hsx, py-hsy, pz+hsz);
-    float h4 = world.get_height_from_pos(px+hsx, py-hsy, pz-hsz);
+    float h1 = world.get_height_from_pos(px-hsx, 256, pz-hsz);
+    float h2 = world.get_height_from_pos(px-hsx, 256, pz+hsz);
+    float h3 = world.get_height_from_pos(px+hsx, 256, pz+hsz);
+    float h4 = world.get_height_from_pos(px+hsx, 256, pz-hsz);
 
     float floor = std::max({h1, h2, h3, h4});
     if (floor<=-256) return -256;
@@ -139,7 +138,8 @@ void Engine::generate_map_mesh() {
     map_model = asset_manager.create_complex_model(mesh_vertices, face_texture_ids);
 }
 
-//////////////  Engine Pipeline   ///////////////
+
+/////////  Engine Pipeline  //////////
 
 void Engine::check_events() {
 

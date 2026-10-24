@@ -3,18 +3,75 @@
 #include "math.h"
 #include <iostream>
 
+#define FIRST_OCT_SIZE 512
+#define SECOND_OCT_SIZE 512
+#define THIRD_OCT_SIZE 256
+#define FOURTH_OCT_SIZE 256
+
 World::World(bool _gravity, float _gravity_force) 
 : gravity {_gravity} , gravity_force {_gravity_force}
 {   
     seed = 1;
+
+    pn_first_oct = GenImagePerlinNoise(FIRST_OCT_SIZE, FIRST_OCT_SIZE, 0, 0, 120.0f);
+    for (int i=0; i<FIRST_OCT_SIZE; ++i) {
+        for (int j=0; j<FIRST_OCT_SIZE; ++j) {
+            pn_first_data.push_back(GetImageColor(pn_first_oct, i, j).r);
+        }
+    }
+    pn_second_oct = GenImagePerlinNoise(SECOND_OCT_SIZE, SECOND_OCT_SIZE, 0, 0, 40.0f);
+    for (int i=0; i<SECOND_OCT_SIZE; ++i) {
+        for (int j=0; j<SECOND_OCT_SIZE; ++j) {
+            pn_second_data.push_back(GetImageColor(pn_second_oct, i, j).r);
+        }
+    }
+    pn_third_oct = GenImagePerlinNoise(THIRD_OCT_SIZE, THIRD_OCT_SIZE, 0, 0, 20.0f);
+    for (int i=0; i<THIRD_OCT_SIZE; ++i) {
+        for (int j=0; j<THIRD_OCT_SIZE; ++j) {
+            pn_third_data.push_back(GetImageColor(pn_third_oct, i, j).r);
+        }
+    }
+    pn_fourth_oct = GenImagePerlinNoise(FOURTH_OCT_SIZE, FOURTH_OCT_SIZE, 0, 0, 10.0f);
+    for (int i=0; i<FOURTH_OCT_SIZE; ++i) {
+        for (int j=0; j<FOURTH_OCT_SIZE; ++j) {
+            pn_fourth_data.push_back(GetImageColor(pn_fourth_oct, i, j).r);
+        }
+    }
+
     generate_overworld();
 }
 
+World::~World() {
+    UnloadImage(pn_first_oct);
+    UnloadImage(pn_second_oct);
+    UnloadImage(pn_third_oct);
+    UnloadImage(pn_fourth_oct);
+}
+
 float World::noise(int x, int z) {
-    Color c = GetImageColor(perlin_noise, x, z);
-    float pixel = c.r / 255.0f;
+
+    int cx = x / CHUNK_SIZE;
+    int cz = z / CHUNK_SIZE;
+
+    int x1 = ((cx / 4) % FIRST_OCT_SIZE)/2 + FIRST_OCT_SIZE/2 ;
+    int z1 = ((cz / 4) % FIRST_OCT_SIZE)/2 + FIRST_OCT_SIZE/2;
+    int c1 = pn_first_data[x1*FIRST_OCT_SIZE + z1];
+
+    int x2 = (cz % SECOND_OCT_SIZE)/2 + SECOND_OCT_SIZE/2;
+    int z2 = (cz % SECOND_OCT_SIZE)/2 + SECOND_OCT_SIZE/2;
+    int c2 = pn_second_data[x2*SECOND_OCT_SIZE + z2];
+
+    int x3 = ((x / 4) % THIRD_OCT_SIZE)/2 + THIRD_OCT_SIZE/2;
+    int z3 = ((z / 4) % THIRD_OCT_SIZE)/2 + THIRD_OCT_SIZE/2;
+    int c3 = pn_third_data[x3*THIRD_OCT_SIZE + z3];
+
+    int x4 = (x % FOURTH_OCT_SIZE)/2 + FOURTH_OCT_SIZE/2;
+    int z4 = (z % FOURTH_OCT_SIZE)/2 + FOURTH_OCT_SIZE/2;
+    int c4 = pn_fourth_data[x4*FOURTH_OCT_SIZE + z4];
+
+    float pixel = (c1 + c2 + c3 + c4) / (4.0f*255.0f);
     float offset = 70;
-    float size = 8;
+    float size = 70;
     return (pixel * size) + offset;
 }
 
@@ -83,7 +140,7 @@ void World::generate_chunk(int x, int z, int y) {
                 int global_x = x * CHUNK_SIZE + i;
                 int global_y = y * CHUNK_SIZE + k;
                 int global_z = z * CHUNK_SIZE + j;
-                hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(i, j));
+                hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(global_x, global_z));
                 bool active = global_y <= hs[i*CHUNK_SIZE + j];
                 Block b {{(float)global_x + 0.5f, (float)global_y + 0.5f, (float)global_z + 0.5f}, 1.0f, B_PODZOL, active};
                 objects.push_back(b);
@@ -122,11 +179,9 @@ void World::generate_overworld() {
 
     for (int i=0; i<chunks_x; i++) {
         for (int j=0; j<chunks_z; j++) {
-            perlin_noise = GenImagePerlinNoise(CHUNK_SIZE, CHUNK_SIZE, i*CHUNK_SIZE, j*CHUNK_SIZE, 4.0f);
             for (int k=0; k<chunks_y; k++){
                 generate_chunk(i + offset_xz, j + offset_xz, k + height_offset);
             }
-            UnloadImage(perlin_noise);
         }
     }
 

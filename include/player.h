@@ -19,8 +19,8 @@ public:
     float eye_height {0.72}; // from middle of the body
     Vector3 size = { 0.6f, 1.8f, 0.6f };
     float half_size_y = 0.9f;
-    Vector3 position = { 2.5f, 90.9f, 4.5f };
-    Vector3 eye_position = { 2.5f, 91.62f, 4.6f };
+    Vector3 position = { 10.0f, 100.9f, 10.0f }; 
+    Vector3 eye_position;
     Vector3 target;
     float speed = NORMAL_SPEED;
     float drag = -SNEAK_SPEED;
