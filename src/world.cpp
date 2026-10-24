@@ -10,6 +10,14 @@ World::World(bool _gravity, float _gravity_force)
     generate_overworld();
 }
 
+float World::noise(int x, int z) {
+    Color c = GetImageColor(perlin_noise, x, z);
+    float pixel = c.r / 255.0f;
+    float offset = 70;
+    float size = 8;
+    return (pixel * size) + offset;
+}
+
 void World::break_block(int i) {
     objects[i].active = false;
     if (objects[i].front != -1)
@@ -26,21 +34,13 @@ void World::break_block(int i) {
         objects[objects[i].left].right = -1;
 }
 
-int World::get_height_from_block_and_seed(int i, int j) {
-    return round( sin((i+5)*PI / 20.0f) * cos((j+0.5)*PI / 10.0f) );
-}
-
-int World::get_height_from_block_and_seed(Vector3 pos) {
-    return get_height_from_block_and_seed((int)pos.x, (int)pos.z);
-}
-
 int World::get_height_from_pos(float x, float y, float z) {
     int index;
     int ix = (int)std::floor(x);
     int iz = (int)std::floor(z);
     int iy = (int)std::floor(y);
 
-    for (int i = iy; i >= -256; --i) {
+    for (int i=iy; i>=-256; --i) {
         if ((index = get_block_index(ix, i, iz)) != -1 && objects[index].active) {
             return i;
         }
@@ -54,9 +54,9 @@ int World::get_block_index(int global_x, int global_y, int global_z) {
     int chunk_z = (int)floor((float)global_z / CHUNK_SIZE);
     
     // revert offset
-    int cx = chunk_x - (-(chunks_x / 2));
-    int cy = chunk_y - (-(chunks_y / 2));
-    int cz = chunk_z - (-(chunks_z / 2));
+    int cx = chunk_x - offset_xz;
+    int cy = chunk_y - height_offset;
+    int cz = chunk_z - offset_xz;
 
     if (cx < 0 || cx >= chunks_x || cy < 0 || cy >= chunks_y || cz < 0 || cz >= chunks_z) {
         return -1;
@@ -83,7 +83,7 @@ void World::generate_chunk(int x, int z, int y) {
                 int global_x = x * CHUNK_SIZE + i;
                 int global_y = y * CHUNK_SIZE + k;
                 int global_z = z * CHUNK_SIZE + j;
-                hs[i*CHUNK_SIZE + j] = get_height_from_block_and_seed(global_x, global_z);
+                hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(i, j));
                 bool active = global_y <= hs[i*CHUNK_SIZE + j];
                 Block b {{(float)global_x + 0.5f, (float)global_y + 0.5f, (float)global_z + 0.5f}, 1.0f, B_PODZOL, active};
                 objects.push_back(b);
@@ -115,19 +115,21 @@ void World::get_neighbors() {
 }
 
 void World::generate_overworld() {
-    int chunks = 16;
     chunks_y = 2;
-    chunks_x = sqrt(chunks);
-    chunks_z = sqrt(chunks);
-    int offset_xz = -(chunks_x / 2);
-    int offset_y = -(chunks_y / 2);
-    for (int i=0 ; i<chunks_x; i++) {
+    chunks_x = 4;
+    chunks_z = 4;
+    offset_xz = -(chunks_x / 2);
+
+    for (int i=0; i<chunks_x; i++) {
         for (int j=0; j<chunks_z; j++) {
+            perlin_noise = GenImagePerlinNoise(CHUNK_SIZE, CHUNK_SIZE, i*CHUNK_SIZE, j*CHUNK_SIZE, 4.0f);
             for (int k=0; k<chunks_y; k++){
-                generate_chunk(i+offset_xz, j+offset_xz, k+offset_y);
+                generate_chunk(i + offset_xz, j + offset_xz, k + height_offset);
             }
+            UnloadImage(perlin_noise);
         }
     }
+
     std::cout << "created " << objects.size() << " objects." << std::endl;
     get_neighbors();
 }

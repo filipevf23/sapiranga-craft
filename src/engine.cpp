@@ -142,24 +142,58 @@ void Engine::generate_map_mesh() {
 //////////////  Engine Pipeline   ///////////////
 
 void Engine::check_events() {
+
+    if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        player.is_sneaking = true;
+    }
+
+    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+        player.is_sprinting = true;
+        player.is_sneaking = false;
+    }
+
     if (IsKeyDown(KEY_A)) {
-        renderer.set_target_position(player.move_left(player.speed * GetFrameTime()));
-    } else if (IsKeyDown(KEY_D)) {
-        renderer.set_target_position(player.move_right(player.speed * GetFrameTime()));
+        player.is_walking = true;
+        player.speed = NORMAL_SPEED;
+        if (player.is_sneaking)
+            player.speed = SNEAK_SPEED;
+        float ds = player.speed * GetFrameTime();
+        renderer.set_target_position(player.move_left(ds));
     }
+    
+    else if (IsKeyDown(KEY_D)) {
+        player.is_walking = true;
+        player.speed = NORMAL_SPEED;
+        if (player.is_sneaking)
+            player.speed = SNEAK_SPEED;
+        float ds = player.speed * GetFrameTime();
+        renderer.set_target_position(player.move_right(ds));
+    }
+
     if (IsKeyDown(KEY_W)) {
-        renderer.set_target_position(player.move_forward(player.speed * GetFrameTime()));
+        player.is_walking = true;
+        player.speed = NORMAL_SPEED;
+        if (player.is_sneaking)
+            player.speed = SNEAK_SPEED;
+        if (player.is_sprinting)
+            player.speed = SPRINT_SPEED;
+        float ds = player.speed * GetFrameTime();
+        renderer.set_target_position(player.move_forward(ds));
     }
+
     else if (IsKeyDown(KEY_S)) {
-        renderer.set_target_position(player.move_backward(player.speed * GetFrameTime()));
+        player.is_walking = true;
+        player.speed = NORMAL_SPEED;
+        if (player.is_sneaking)
+            player.speed = SNEAK_SPEED;
+        float ds = player.speed * GetFrameTime();
+        renderer.set_target_position(player.move_backward(ds));
     }
     if (IsKeyDown(KEY_SPACE) && !player.is_falling) {
         player.fall_speed = sqrt(2 * world.gravity_force * 1.25);
         player.is_falling = true;
     }
-    if (IsKeyDown(KEY_LEFT_SHIFT)) {
-        // renderer.set_target_position(player.move_down(player.speed * GetFrameTime()));
-    }
+    
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         break_block_command = true;
     }
@@ -180,18 +214,29 @@ void Engine::update() {
             player.fall_speed -= (world.gravity_force * time);
             float dy = player.fall_speed * time;
             renderer.set_target_position(player.move_y(dy));
-            if (player.position.y - fh < player.half_size_y) {
-                player.position.y = fh + player.half_size_y;
-                player.target.y = fh + player.half_size_y;
+            if (player.position.y - fh < player.half_size_y && player.fall_speed < 0.0f) {
+                fh += 0.005;
+                player.set_y(fh + player.half_size_y);
                 player.is_falling = false;
                 player.fall_speed = 0.0f;
             }
         }
     }
 
+    // Is no longer actively walking
+    if (!player.is_walking && player.speed > 0.0f) {
+        player.is_sprinting = false;
+        player.speed -= player.drag;
+        if (player.speed < 0.0f) {
+            player.speed = 0.0f;
+        }
+    }
+    player.is_sneaking = false;
+    player.is_walking = false;
+
     BoundingBox player_object = CollisionManager::get_bounding_box(&player.position, &player.size);
     Vector3 reaction_vector {0,0,0};
-    float aim_dist = 1000.0f;
+    float aim_dist = 32.0f;
     player.looking_at = -1;
 
     for (size_t i=0; i<world.objects.size(); ++i) {
@@ -209,13 +254,13 @@ void Engine::update() {
         }
 
         // Collision
-        float block_top = world.objects[i].center.y + world.objects[i].size.y/2.0f;
+        float block_top =object->center.y + object->size.y/2.0f;
         float player_bottom = player.position.y - player.half_size_y;
-        if (block_top <= player_bottom + 0.05f) {
+        if (block_top <= player_bottom + 0.005f) {
             continue;
         }
 
-        if (CollisionManager::check_collision(&player_object, &world.objects[i])) {
+        if (CollisionManager::check_collision(&player_object, object)) {
             player.collision = true;
             reaction_vector = Vector3Add(reaction_vector,(CollisionManager::get_reaction_vector(&player_object, &world.objects[i])));
         }
@@ -241,6 +286,7 @@ void Engine::update() {
     renderer.set_camera_position(player.eye_position);
     renderer.update_camera(player.eye_position, mouse_sensitivity);
     player.target = renderer.get_target();
+    
 }
 
 void Engine::run() {

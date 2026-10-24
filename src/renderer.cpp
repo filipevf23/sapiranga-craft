@@ -61,7 +61,7 @@ void Renderer::specific_render(int i) {
 }
 
 void Renderer::render(Model &model) {
-    static int aim_size = 24;
+    static int aim_size = 18;
     static int aim_width = 2;
 
     BeginDrawing();
@@ -70,7 +70,7 @@ void Renderer::render(Model &model) {
             DrawModel(model, {0,0,0}, 1.0f, WHITE);
         EndMode3D();
         DrawFPS(10,10);
-        DrawRectangle((GetScreenWidth() - aim_size) / 2, (GetScreenHeight() - aim_width) / 2, aim_size, aim_width, GRAY);
-        DrawRectangle((GetScreenWidth() - aim_width) / 2, (GetScreenHeight() - aim_size) / 2, aim_width, aim_size, GRAY);
+        DrawRectangle((GetScreenWidth() - aim_size) / 2, (GetScreenHeight() - aim_width) / 2, aim_size, aim_width, WHITE);
+        DrawRectangle((GetScreenWidth() - aim_width) / 2, (GetScreenHeight() - aim_size) / 2, aim_width, aim_size, WHITE);
     EndDrawing();
 }

@@ -53,36 +53,42 @@ Vector3 Player::move_down(float s) {
 }
 
 Vector3 Player::move_left(float s) {
-    Vector3 forward {.x = target.x - position.x,
-                .y = 0.0f,
-                .z = target.z - position.z
+    Vector3 forward {
+        .x = target.x - position.x,
+        .y = 0.0f,
+        .z = target.z - position.z
     };
-    Vector3 up = {0, 1, 0};
-    Vector3 left = Algebra::normalize(Vector3CrossProduct(up, forward));
-    Vector3 movement = Vector3Scale(left, s);
-    position = Vector3Add(position, movement);
-    eye_position = Vector3Add(eye_position, movement);
-    target = Vector3Add(target, movement);
+    if (Algebra::norm(forward) > 0.001f) {
+        Vector3 up = {0, 1, 0};
+        Vector3 left = Algebra::normalize(Vector3CrossProduct(up, forward));
+        Vector3 movement = Vector3Scale(left, s);
+        position = Vector3Add(position, movement);
+        eye_position = Vector3Add(eye_position, movement);
+        target = Vector3Add(target, movement);
+    }
     return target;
 }
 
 Vector3 Player::move_right(float s) {
-    Vector3 forward {.x = target.x - position.x,
-                .y = 0.0f,
-                .z = target.z - position.z
+    Vector3 forward {
+        .x = target.x - position.x,
+        .y = 0.0f,
+        .z = target.z - position.z
     };
-    Vector3 up = {0, 1, 0};
-    Vector3 right = Algebra::normalize(Vector3CrossProduct(forward, up));
-    Vector3 movement = Vector3Scale(right, s);
-    position = Vector3Add(position, movement);
-    eye_position = Vector3Add(eye_position, movement);
-    target = Vector3Add(target, movement);
+    if (Algebra::norm(forward) > 0.001f) {
+        Vector3 up = {0, 1, 0};
+        Vector3 right = Algebra::normalize(Vector3CrossProduct(forward, up));
+        Vector3 movement = Vector3Scale(right, s);
+        position = Vector3Add(position, movement);
+        eye_position = Vector3Add(eye_position, movement);
+        target = Vector3Add(target, movement);
+    }
     return target;
 }
 
 void Player::set_y(float y) {
     position.y = y;
-    eye_position.y = y+0.3f;
+    eye_position.y = y+eye_height;
     target.y = y;
 }
 
