@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include <vector>
+#include "shapes.h"
 
 enum TextureID {
     LAVA1,
@@ -27,7 +28,7 @@ enum TextureID {
     OAKSAPLING,
     STONESLAB1,
     LILYPAD,
-    BLUEWOOL,
+    LIGHTBLUEWOOL,
     MEAT,
     BRICK,
     CHICKEN,
@@ -260,6 +261,7 @@ enum TextureID {
     CLOWNFISH,
     GOLDHELMET,
     IRONHORSEARMOR,
+    PINKTULIP,
     REDTULIP,
     WHITETULIP,
     FURNACE1,
@@ -290,6 +292,7 @@ enum TextureID {
     YELLOWDYE,
     COOKEDFISH,
     GOLDHOE,
+    IRONBAR,
     MAGENTAGLASS,
     ORANGEGLASS,
     GLASSPANE,
@@ -355,6 +358,70 @@ enum TextureID {
     GOLD_,
     IRONPICKAXE,
     GRAVEL,
+    TERRACOTTA,
+    BLACKTERRACOTTA,
+    BLUETERRACOTTA,
+    BROWNTERRACOTTA,
+    CYANTERRACOTTA,
+    GRAYTERRACOTTA,
+    GREENTERRACOTTA,
+    LIGHTBLUETERRACOTTA,
+    LIMETERRACOTTA,
+    MAGENTATERRACOTTA,
+    ORANGETERRACOTTA,
+    PINKTERRACOTTA,
+    PURPLETERRACOTTA,
+    REDTERRACOTTA,
+    LIGHTGRAYTERRACOTTA,
+    PRISMARINEBRICK,
+    QUARTZORE,
+    REDSTONETRAIL1,
+    CUTSANDSTONE,
+    POLISHEDANDESITE,
+    TRAPDOOR,
+    BLUEWOOL,
+    GOLDENAPPLE,
+    BOWANDARROW3,
+    CHAINMAILCHESTPLATE,
+    DIAMONDHELMET,
+    BROWNDYE,
+    BOOTSOUTLINE,
+    COOKEDSALMON,
+    GOLDENLEGGINGS,
+    IRONSHOVEL,
+    WHITETERRACOTTA,
+    YELLOWTERRACOTTA,
+    HAYBALE1,
+    HAYBALE2,
+    HOPPER1,
+    HOPPER2,
+    HOPPER3,
+    FROSTEDICE,
+    ICE,
+    IRONBARS,
+    IRONBLOCK,
+    IRONORE,
+    IRONTRAPDOOR,
+    NOTEBLOCK1,
+    NOTEBLOCK2,
+    JUKEBOX,
+    DARKPRISMARINE,
+    ACTIVATORRAILOFF,
+    NOTHING1,
+    SANDSTONE,
+    DIORITE,
+    MYSTERIOUSITEM3,
+    BROWNWOOL,
+    ARROW,
+    BOW,
+    CHAINMAILHELMET,
+    DIAMONDHOE,
+    CYANDYE,
+    CHESTPLATEOUTLINE,
+    SALMON,
+    GOLDENNUGGET,
+    IRONSWORD,
+    LADDER,
 };
 
 class AssetManager {
@@ -373,6 +440,7 @@ public:
     bool load_minecraft_textures(int);
     void load_texture_ids(int front, int back, int up, int down, int right, int left, int *dest);
     void get_block_textures(int id, int *destination);
+    Color get_face_color(int id);
     bool add_block_by_repeating_texture(int);
     bool add_block_by_specific_texture(int []); // six faces of cube;
     Model create_complex_model(std::vector<Vector3> &vertices, std::vector<int> &t_ids);

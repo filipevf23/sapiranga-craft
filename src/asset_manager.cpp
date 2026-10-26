@@ -2,31 +2,16 @@
 #include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
-#include "shapes.h"
 #include "raymath.h"
 
 using std::cout, std::endl, std::vector, std::string;
 
 AssetManager::AssetManager() : texture_size {1} {
-    // Creating a Cube Model by 'glueing' a texture to a mesh.
-    //   *Must do this for every shape and different texture
-    Mesh cube_mesh = GenMeshCube(1.0f, 1.0f, 1.0f);
-    Model cube_model = LoadModelFromMesh(cube_mesh);
-    add_texture(LoadTexture("assets/brick-wall.png"));
+
     minecraft_texture = LoadTextureFromImage(LoadImage("assets/minecraft-textures.png"));
+    GenTextureMipmaps(&minecraft_texture);
     SetTextureFilter(minecraft_texture, TEXTURE_FILTER_POINT);
-    cube_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = textures[0];
-    models.emplace_back(cube_model);
 
-    // Trying new downloaded assets
-    const char *file_name = "assets/kit1/Assets/obj/mug_full.obj";
-    Model test_model = LoadModel(file_name);
-    models.emplace_back(test_model);
-
-    int dropper[] = {DROPPER1, DROPPER1, DROPPER2, DROPPER1, DROPPER1, DROPPER1};
-    add_block_by_specific_texture(dropper);
-    int podzol[] = {PODZOL2, PODZOL2, PODZOL1, DIRT, PODZOL2, PODZOL2};
-    add_block_by_specific_texture(podzol);
 }
 
 AssetManager::~AssetManager() {
@@ -35,6 +20,16 @@ AssetManager::~AssetManager() {
     }
     for (Model &m : models) {
         UnloadModel(m);
+    }
+}
+
+Color AssetManager::get_face_color(int id) {
+    switch (id) {
+        case GRASSBASETEXTURE:
+            return {94, 157, 52, 255};
+
+        default:
+            return {255, 255, 255, 255};
     }
 }
 
@@ -83,6 +78,14 @@ void AssetManager::get_block_textures(int id, int *dest) {
 
         case B_DROPPER:
             load_texture_ids(DROPPER1, DROPPER1, DROPPER2, DROPPER1, DROPPER1, DROPPER1, dest);
+            break;
+
+        case B_GRASS:
+            load_texture_ids(GRASSBLOCK, GRASSBLOCK, GRASSBASETEXTURE, DIRT, GRASSBLOCK, GRASSBLOCK, dest);
+            break;
+
+        case B_DIRT:
+            load_texture_ids(DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, dest);
             break;
 
         default:
@@ -155,6 +158,7 @@ Model AssetManager::create_complex_model(std::vector<Vector3> &vertices, std::ve
     mesh.texcoords = (float*)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
     mesh.normals = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
     mesh.indices = (unsigned short*)MemAlloc(mesh.triangleCount * 3 * sizeof(unsigned short));
+    mesh.colors = (unsigned char*)MemAlloc(mesh.vertexCount * 4 * sizeof(unsigned char));
 
     // Vertex Coords
     size_t i=0;
@@ -165,7 +169,7 @@ Model AssetManager::create_complex_model(std::vector<Vector3> &vertices, std::ve
     }
 
     // Indices
-    i=0;
+    i = 0;
     for (size_t v=0; v < vertices.size()/4; ++v) {
         mesh.indices[i++] = v*4;
         mesh.indices[i++] = v*4 + 1;
@@ -191,6 +195,7 @@ Model AssetManager::create_complex_model(std::vector<Vector3> &vertices, std::ve
 
     // Texture Coords
     i = 0;
+    size_t j = 0;
     for (size_t face=0; face < t_ids.size(); ++face) {
         Vector2 d = pixel_to_float(t_ids[face]);
         Vector2 tl = {d.x   , d.y};     // top-left
@@ -203,6 +208,13 @@ Model AssetManager::create_complex_model(std::vector<Vector3> &vertices, std::ve
         mesh.texcoords[i++] = br.x ; mesh.texcoords[i++] = br.y;
         mesh.texcoords[i++] = tr.x ; mesh.texcoords[i++] = tr.y;
         
+        Color color = get_face_color(t_ids[face]);
+        for (int v=0; v<4; ++v) {
+            mesh.colors[j++] = color.r;
+            mesh.colors[j++] = color.g;
+            mesh.colors[j++] = color.b;
+            mesh.colors[j++] = color.a;
+        }
     }
     UploadMesh(&mesh, false);
     Model model = LoadModelFromMesh(mesh);

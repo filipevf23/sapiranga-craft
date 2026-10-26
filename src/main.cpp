@@ -4,8 +4,8 @@
 using namespace std;
 
 int main() {
-    int width=1280, height=720;
-    // SetConfigFlags(FLAG_FULLSCREEN_MODE); 
+    int width=1920, height=1080;
+    SetConfigFlags(FLAG_FULLSCREEN_MODE); 
     const char *title = "Minecraft";	
     InitWindow(width, height, title);
     SetTargetFPS(200);

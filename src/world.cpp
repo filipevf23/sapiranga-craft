@@ -142,7 +142,8 @@ void World::generate_chunk(int x, int z, int y) {
                 int global_z = z * CHUNK_SIZE + j;
                 hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(global_x, global_z));
                 bool active = global_y <= hs[i*CHUNK_SIZE + j];
-                Block b {{(float)global_x + 0.5f, (float)global_y + 0.5f, (float)global_z + 0.5f}, 1.0f, B_PODZOL, active};
+                BlockID id = global_y == hs[i*CHUNK_SIZE + j] ? B_GRASS : B_DIRT;
+                Block b {{(float)global_x + 0.5f, (float)global_y + 0.5f, (float)global_z + 0.5f}, 1.0f, id, active};
                 objects.push_back(b);
             }
         }
