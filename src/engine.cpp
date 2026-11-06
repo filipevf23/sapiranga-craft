@@ -55,6 +55,7 @@ void Engine::generate_map_mesh() {
     std::vector<Vector3> mesh_vertices; // vertices
     std::vector<int> face_texture_ids;  // texture_ids
 
+    int blocks_drawn = 0;
     for (size_t i=0; i<world.objects.size(); ++i) {
         Block *object = &world.objects[i];
 
@@ -133,9 +134,11 @@ void Engine::generate_map_mesh() {
             mesh_vertices.push_back(Vector3Add(faces[5], {-0.5f, 0.5f, 0.0f}));  // TR
             face_texture_ids.push_back(ids[5]);
         }
+        blocks_drawn++;
     }
 
     map_model = asset_manager.create_complex_model(mesh_vertices, face_texture_ids);
+    cout << "Drew " << blocks_drawn << " blocks | " << face_texture_ids.size() << " faces\n";
 }
 
 

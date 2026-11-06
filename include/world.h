@@ -5,6 +5,8 @@
 #include "shapes.h"
 
 #define CHUNK_SIZE 16
+#define WORLD_HEIGHT_MIN 0
+#define WORLD_HEIGHT_MAX 255
 
 class World {
 public:
@@ -15,7 +17,7 @@ public:
     double floor_height = 0.0;
     int seed;
 
-    int chunks_y;
+    
     int chunks_x;
     int chunks_z;
     int offset_xz;
@@ -37,7 +39,7 @@ public:
     void break_block(int i);
     int get_height_from_pos(float x, float y, float z);
     float noise(int, int);
-    void generate_chunk(int, int, int);
+    void generate_chunk(int, int);
     int get_block_index(int global_x, int global_y, int global_z);
     void get_neighbors();
     void generate_overworld();

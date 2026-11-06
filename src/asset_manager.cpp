@@ -209,7 +209,31 @@ Model AssetManager::create_complex_model(std::vector<Vector3> &vertices, std::ve
         mesh.texcoords[i++] = tr.x ; mesh.texcoords[i++] = tr.y;
         
         Color color = get_face_color(t_ids[face]);
+        // if (color.r != 255 && color.b != 255) {
+        //     mesh.colors[j++] = 255;
+        //     mesh.colors[j++] = 0;
+        //     mesh.colors[j++] = 0;
+        //     mesh.colors[j++] = color.a;
+
+        //     mesh.colors[j++] = 0;
+        //     mesh.colors[j++] = 255;
+        //     mesh.colors[j++] = 0;
+        //     mesh.colors[j++] = color.a;
+
+        //     mesh.colors[j++] = 0;
+        //     mesh.colors[j++] = 0;
+        //     mesh.colors[j++] = 255;
+        //     mesh.colors[j++] = color.a;
+
+        //     mesh.colors[j++] = 155;
+        //     mesh.colors[j++] = 155;
+        //     mesh.colors[j++] = 155;
+        //     mesh.colors[j++] = color.a;
+
+        //     continue;
+        // }
         for (int v=0; v<4; ++v) {
+
             mesh.colors[j++] = color.r;
             mesh.colors[j++] = color.g;
             mesh.colors[j++] = color.b;

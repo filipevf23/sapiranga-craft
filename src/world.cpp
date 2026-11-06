@@ -2,6 +2,7 @@
 #include "map.h"
 #include "math.h"
 #include <iostream>
+#include "utils.h"
 
 #define FIRST_OCT_SIZE 512
 #define SECOND_OCT_SIZE 512
@@ -97,53 +98,52 @@ int World::get_height_from_pos(float x, float y, float z) {
     int iz = (int)std::floor(z);
     int iy = (int)std::floor(y);
 
-    for (int i=iy; i>=-256; --i) {
+    for (int i=iy; i>=WORLD_HEIGHT_MIN; --i) {
         if ((index = get_block_index(ix, i, iz)) != -1 && objects[index].active) {
             return i;
         }
     }
-    return -256;
+    return WORLD_HEIGHT_MIN;
 }
 
 int World::get_block_index(int global_x, int global_y, int global_z) {
     int chunk_x = (int)floor((float)global_x / CHUNK_SIZE);
-    int chunk_y = (int)floor((float)global_y / CHUNK_SIZE);
     int chunk_z = (int)floor((float)global_z / CHUNK_SIZE);
     
     // revert offset
     int cx = chunk_x - offset_xz;
-    int cy = chunk_y - height_offset;
+    int cy = global_y;
     int cz = chunk_z - offset_xz;
 
-    if (cx < 0 || cx >= chunks_x || cy < 0 || cy >= chunks_y || cz < 0 || cz >= chunks_z) {
+    if (cx < 0 || cx >= chunks_x || cy < WORLD_HEIGHT_MIN || cy > WORLD_HEIGHT_MAX || cz < 0 || cz >= chunks_z) {
         return -1;
     }
 
     int local_x = global_x - chunk_x * CHUNK_SIZE;
-    int local_y = global_y - chunk_y * CHUNK_SIZE;
     int local_z = global_z - chunk_z * CHUNK_SIZE;
 
-    int chunk_idx = cx * (chunks_z * chunks_y) + cz * chunks_y + cy;
-    int block_idx = local_x * (CHUNK_SIZE * CHUNK_SIZE) + local_z * CHUNK_SIZE + local_y;
+    int chunk_idx = cx * (chunks_z) + cz;
+    int block_idx = local_x * (CHUNK_SIZE * (WORLD_HEIGHT_MAX+1)) + local_z * (WORLD_HEIGHT_MAX+1) + global_y;
 
-    return chunk_idx * (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) + block_idx;
+    return chunk_idx * (CHUNK_SIZE * CHUNK_SIZE * (WORLD_HEIGHT_MAX+1)) + block_idx;
 }
 
 
-void World::generate_chunk(int x, int z, int y) {
+void World::generate_chunk(int x, int z) {
     int hs[CHUNK_SIZE * CHUNK_SIZE];
 
     // Creating Blocks
     for (int i=0; i<CHUNK_SIZE; i++) {
         for (int j=0; j<CHUNK_SIZE; j++) {
-            for (int k=0; k<CHUNK_SIZE; k++) {
+            for (int height=WORLD_HEIGHT_MIN; height<=WORLD_HEIGHT_MAX; height++) {
                 int global_x = x * CHUNK_SIZE + i;
-                int global_y = y * CHUNK_SIZE + k;
                 int global_z = z * CHUNK_SIZE + j;
+
                 hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(global_x, global_z));
-                bool active = global_y <= hs[i*CHUNK_SIZE + j];
-                BlockID id = global_y == hs[i*CHUNK_SIZE + j] ? B_GRASS : B_DIRT;
-                Block b {{(float)global_x + 0.5f, (float)global_y + 0.5f, (float)global_z + 0.5f}, 1.0f, id, active};
+                bool active = height <= hs[i*CHUNK_SIZE + j];
+
+                BlockID id = height == hs[i*CHUNK_SIZE + j] ? B_GRASS : B_DIRT;
+                Block b {{(float)global_x + 0.5f, (float)height + 0.5f, (float)global_z + 0.5f}, 1.0f, id, active};
                 objects.push_back(b);
             }
         }
@@ -154,6 +154,7 @@ void World::get_neighbors() {
 
     for (size_t i=0; i<objects.size(); ++i) {
         Block *b = &objects[i];
+        
         int gx = (int)floor(b->center.x);
         int gy = (int)floor(b->center.y);
         int gz = (int)floor(b->center.z);
@@ -173,16 +174,14 @@ void World::get_neighbors() {
 }
 
 void World::generate_overworld() {
-    chunks_y = 2;
-    chunks_x = 4;
-    chunks_z = 4;
+
+    chunks_x = 2;
+    chunks_z = 2;
     offset_xz = -(chunks_x / 2);
 
     for (int i=0; i<chunks_x; i++) {
         for (int j=0; j<chunks_z; j++) {
-            for (int k=0; k<chunks_y; k++){
-                generate_chunk(i + offset_xz, j + offset_xz, k + height_offset);
-            }
+            generate_chunk(i + offset_xz, j + offset_xz);
         }
     }
 
