@@ -24,7 +24,7 @@ public:
     Vector3 target;
     float speed = NORMAL_SPEED;
     float drag = -SNEAK_SPEED;
-    int looking_at; // index of object that player is looking at
+    Vector4 looking_at {-1,-1,-1,-1}; // indices of object & chunk that player is looking at
 
     void rotate(double);
     Vector3 move_forward(float = 0.1);

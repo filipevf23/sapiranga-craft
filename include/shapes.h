@@ -6,6 +6,7 @@
 #include <vector>
 
 enum BlockID {
+    AIR,
     B_DIRT,
     B_GRASS,
     B_STONE,

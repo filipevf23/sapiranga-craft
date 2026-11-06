@@ -60,14 +60,16 @@ void Renderer::specific_render(int i) {
     specific = i;
 }
 
-void Renderer::render(Model &model) {
+void Renderer::render(std::vector<Chunk> &chunks) {   
     static int aim_size = 18;
     static int aim_width = 2;
-
+    
     BeginDrawing();
         BeginMode3D(camera);
             ClearBackground(bg_color);
-            DrawModel(model, {0,0,0}, 1.0f, WHITE);
+            for (auto &c : chunks) {
+                DrawModel(c.model, {0,0,0}, 1.0f, WHITE);
+            }
         EndMode3D();
         DrawFPS(10,10);
         DrawRectangle((GetScreenWidth() - aim_size) / 2, (GetScreenHeight() - aim_width) / 2, aim_size, aim_width, WHITE);

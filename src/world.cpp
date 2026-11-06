@@ -13,6 +13,9 @@ World::World(bool _gravity, float _gravity_force)
 : gravity {_gravity} , gravity_force {_gravity_force}
 {   
     seed = 1;
+    chunks_x = render_distance;
+    chunks_z = render_distance;
+    offset_xz = -(chunks_x / 2);
 
     pn_first_oct = GenImagePerlinNoise(FIRST_OCT_SIZE, FIRST_OCT_SIZE, 0, 0, 120.0f);
     for (int i=0; i<FIRST_OCT_SIZE; ++i) {
@@ -76,33 +79,29 @@ float World::noise(int x, int z) {
     return (pixel * size) + offset;
 }
 
-void World::break_block(int i) {
-    objects[i].active = false;
-    if (objects[i].front != -1)
-        objects[objects[i].front].back = -1;
-    if (objects[i].back != -1)
-        objects[objects[i].back].front = -1;
-    if (objects[i].up != -1)
-        objects[objects[i].up].down = -1;
-    if (objects[i].down != -1)
-        objects[objects[i].down].up = -1;
-    if (objects[i].right != -1)
-        objects[objects[i].right].left = -1;
-    if (objects[i].left != -1)
-        objects[objects[i].left].right = -1;
+void World::break_block(int i, int j, int k, int c) {
+    chunks[c].blocks[i][j][k] = AIR;
 }
 
 int World::get_height_from_pos(float x, float y, float z) {
-    int index;
+
     int ix = (int)std::floor(x);
     int iz = (int)std::floor(z);
     int iy = (int)std::floor(y);
 
-    for (int i=iy; i>=WORLD_HEIGHT_MIN; --i) {
-        if ((index = get_block_index(ix, i, iz)) != -1 && objects[index].active) {
-            return i;
+    if (iy > WORLD_HEIGHT_MAX) {
+        iy = WORLD_HEIGHT_MAX;
+    }
+
+    for (auto &c : chunks) {
+        if (c.x <= ix && (c.x+CHUNK_SIZE) > ix && c.z <= iz && (c.z+CHUNK_SIZE) > iz) {
+            for (int height=iy; height>WORLD_HEIGHT_MIN; --height) {
+                if (c.blocks[ix - c.x][iz - c.z][height] != AIR)
+                    return height;
+            }
         }
     }
+
     return WORLD_HEIGHT_MIN;
 }
 
@@ -129,25 +128,33 @@ int World::get_block_index(int global_x, int global_y, int global_z) {
 }
 
 
+Vector3 World::get_block_center(int c_x, int c_z, int i, int j, int k) {
+    return Vector3 {c_x + i + 0.5f, k+0.5f, c_z + j + 0.5f};
+}
+
 void World::generate_chunk(int x, int z) {
     int hs[CHUNK_SIZE * CHUNK_SIZE];
-
+    Chunk chunk;
     // Creating Blocks
     for (int i=0; i<CHUNK_SIZE; i++) {
         for (int j=0; j<CHUNK_SIZE; j++) {
+            int global_x = x * CHUNK_SIZE + i;
+            int global_z = z * CHUNK_SIZE + j;
+            hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(global_x, global_z));
             for (int height=WORLD_HEIGHT_MIN; height<=WORLD_HEIGHT_MAX; height++) {
-                int global_x = x * CHUNK_SIZE + i;
-                int global_z = z * CHUNK_SIZE + j;
-
-                hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(global_x, global_z));
-                bool active = height <= hs[i*CHUNK_SIZE + j];
-
-                BlockID id = height == hs[i*CHUNK_SIZE + j] ? B_GRASS : B_DIRT;
-                Block b {{(float)global_x + 0.5f, (float)height + 0.5f, (float)global_z + 0.5f}, 1.0f, id, active};
-                objects.push_back(b);
+                BlockID id;
+                if (height > hs[i*CHUNK_SIZE + j]) {
+                    id = AIR;
+                } else {
+                    id = height == hs[i*CHUNK_SIZE + j] ? B_GRASS : B_DIRT;
+                }
+                chunk.blocks[i][j][height] = id;
             }
         }
     }
+    chunk.x = x * CHUNK_SIZE;
+    chunk.z = z * CHUNK_SIZE;
+    chunks.push_back(chunk);
 }
 
 void World::get_neighbors() {
@@ -175,16 +182,12 @@ void World::get_neighbors() {
 
 void World::generate_overworld() {
 
-    chunks_x = 2;
-    chunks_z = 2;
-    offset_xz = -(chunks_x / 2);
-
     for (int i=0; i<chunks_x; i++) {
         for (int j=0; j<chunks_z; j++) {
             generate_chunk(i + offset_xz, j + offset_xz);
         }
     }
 
-    std::cout << "created " << objects.size() << " objects." << std::endl;
-    get_neighbors();
+    std::cout << "created " << chunks.size() << " chunks." << std::endl;
+    //get_neighbors();
 }

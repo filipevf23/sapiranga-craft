@@ -437,6 +437,7 @@ public:
     bool add_texture(Texture2D);
     bool add_model(Model);
     void unload_mesh();
+    void unload_models();
     bool load_minecraft_textures(int);
     void load_texture_ids(int front, int back, int up, int down, int right, int left, int *dest);
     void get_block_textures(int id, int *destination);

@@ -23,6 +23,13 @@ AssetManager::~AssetManager() {
     }
 }
 
+void AssetManager::unload_models() {
+    for (Model &m : models) {
+        UnloadModel(m);
+    }
+    models.clear();
+}
+
 Color AssetManager::get_face_color(int id) {
     switch (id) {
         case GRASSBASETEXTURE:

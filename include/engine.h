@@ -33,6 +33,7 @@ public:
     void run();
 
     void generate_map_mesh();
+    void generate_chunk_mesh(Chunk *c);
     bool is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos);
     float get_player_floor();
 };

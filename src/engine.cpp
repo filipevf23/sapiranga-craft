@@ -21,7 +21,10 @@ void Engine::init() {
     renderer.set_camera_position(player.eye_position);
     renderer.update_camera(player.eye_position, mouse_sensitivity);
     player.target = renderer.get_target();
-    generate_map_mesh();
+    for (auto &c : world.chunks) {
+        generate_chunk_mesh(&c);
+    }
+    cout << "Engine Initialized" << endl;
 }
 
 
@@ -51,94 +54,101 @@ float Engine::get_player_floor() {
     return floor + 1.0f;
 }
 
-void Engine::generate_map_mesh() {
+void Engine::generate_chunk_mesh(Chunk *c) {
     std::vector<Vector3> mesh_vertices; // vertices
     std::vector<int> face_texture_ids;  // texture_ids
+    Vector3 normal_front {0.5f, 0.0f, 0.0f};
+    Vector3 normal_back {-0.5f, 0.0f, 0.0f};
+    Vector3 normal_up {0.0f, 0.5f, 0.0f};
+    Vector3 normal_down {0.0f, -0.5f, 0.0f};
+    Vector3 normal_right {0.0f, 0.0f, 0.5f};
+    Vector3 normal_left {0.0f, 0.0f, -0.5f};
 
-    int blocks_drawn = 0;
-    for (size_t i=0; i<world.objects.size(); ++i) {
-        Block *object = &world.objects[i];
+    // Loop Through Blocks
+    for (int i=0; i<CHUNK_SIZE; ++i) {
+        for (int j=0; j<CHUNK_SIZE; ++j) {
+            for (int k=0; k<=WORLD_HEIGHT_MAX; ++k) {
 
-        if (!object->active) continue;
+                if (c->blocks[i][j][k] == AIR) continue;
 
-        bool draw_front = object->front == -1 || !world.objects[object->front].active;
-        bool draw_back = object->back == -1 || !world.objects[object->back].active;
-        bool draw_up = object->up == -1 || !world.objects[object->up].active;
-        bool draw_down = object->down == -1 || !world.objects[object->down].active;
-        bool draw_right = object->right == -1 || !world.objects[object->right].active;
-        bool draw_left = object->left == -1 || !world.objects[object->left].active;
+                int front = i+1;
+                int back = i-1;
+                int left = j-1;
+                int right = j+1;
+                int up = k+1;
+                int down = k-1;
 
-        if (!draw_front && !draw_back && !draw_up && !draw_down && !draw_right && !draw_left) {
-            continue;
-        }
+                Vector3 center = world.get_block_center(c->x, c->z, i, j, k);
+                Vector3 faces[6] {
+                    Vector3Add(center, normal_front),
+                    Vector3Add(center, normal_back),
+                    Vector3Add(center, normal_up),
+                    Vector3Add(center, normal_down),
+                    Vector3Add(center, normal_right),
+                    Vector3Add(center, normal_left)
+                };
 
-        
-        Vector3 normal_front {0.5f, 0.0f, 0.0f};
-        Vector3 normal_back {-0.5f, 0.0f, 0.0f};
-        Vector3 normal_up {0.0f, 0.5f, 0.0f};
-        Vector3 normal_down {0.0f, -0.5f, 0.0f};
-        Vector3 normal_right {0.0f, 0.0f, 0.5f};
-        Vector3 normal_left {0.0f, 0.0f, -0.5f};
-    
-        Vector3 faces[6] {
-            Vector3Add(object->center, normal_front),
-            Vector3Add(object->center, normal_back),
-            Vector3Add(object->center, normal_up),
-            Vector3Add(object->center, normal_down),
-            Vector3Add(object->center, normal_right),
-            Vector3Add(object->center, normal_left)
-        };
+                bool draw_front = front >= CHUNK_SIZE ? true : c->blocks[front][j][k] == AIR;
+                bool draw_back = back < 0 ? true : c->blocks[back][j][k] == AIR;
+                bool draw_up = up >= WORLD_HEIGHT_MAX ? true : c->blocks[i][j][up] == AIR;
+                bool draw_down = down < 0 ? true: c->blocks[i][j][down] == AIR;
+                bool draw_right = right >= CHUNK_SIZE ? true : c->blocks[i][right][k] == AIR;
+                bool draw_left = left < 0 ? true : c->blocks[i][left][k] == AIR;
 
-        int ids[6];
-        asset_manager.get_block_textures(object->texture_id, ids);
+                if (!draw_front && !draw_back && !draw_up && !draw_down && !draw_right && !draw_left) {
+                    continue;
+                }
 
-        if (draw_front) { 
-            mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, 0.5f, 0.5f}));   // TL
-            mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, -0.5f, 0.5f}));  // BL
-            mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, -0.5f, -0.5f})); // BR
-            mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, 0.5f, -0.5f}));  // TR
-            face_texture_ids.push_back(ids[0]);
+                int ids[6];
+                asset_manager.get_block_textures(c->blocks[i][j][k], ids);
+
+                if (draw_front) { 
+                    mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, 0.5f, 0.5f}));   // TL
+                    mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, -0.5f, 0.5f}));  // BL
+                    mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, -0.5f, -0.5f})); // BR
+                    mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, 0.5f, -0.5f}));  // TR
+                    face_texture_ids.push_back(ids[0]);
+                }
+                if (draw_back) { 
+                    mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, 0.5f, -0.5f}));  // TL
+                    mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, -0.5f, -0.5f})); // BL
+                    mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, -0.5f, 0.5f}));  // BR
+                    mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, 0.5f, 0.5f}));   // TR
+                    face_texture_ids.push_back(ids[1]);
+                }
+                if (draw_up) { 
+                    mesh_vertices.push_back(Vector3Add(faces[2], {-0.5f, 0.0f, -0.5f})); // TL
+                    mesh_vertices.push_back(Vector3Add(faces[2], {-0.5f, 0.0f, 0.5f}));  // BL
+                    mesh_vertices.push_back(Vector3Add(faces[2], {0.5f, 0.0f, 0.5f}));   // BR
+                    mesh_vertices.push_back(Vector3Add(faces[2], {0.5f, 0.0f, -0.5f}));  // TR
+                    face_texture_ids.push_back(ids[2]);
+                }
+                if (draw_down) { 
+                    mesh_vertices.push_back(Vector3Add(faces[3], {-0.5f, 0.0f, 0.5f}));  // TL
+                    mesh_vertices.push_back(Vector3Add(faces[3], {-0.5f, 0.0f, -0.5f})); // BL
+                    mesh_vertices.push_back(Vector3Add(faces[3], {0.5f, 0.0f, -0.5f}));  // BR
+                    mesh_vertices.push_back(Vector3Add(faces[3], {0.5f, 0.0f, 0.5f}));   // TR
+                    face_texture_ids.push_back(ids[3]);
+                }
+                if (draw_right) { 
+                    mesh_vertices.push_back(Vector3Add(faces[4], {-0.5f, 0.5f, 0.0f}));  // TL
+                    mesh_vertices.push_back(Vector3Add(faces[4], {-0.5f, -0.5f, 0.0f})); // BL
+                    mesh_vertices.push_back(Vector3Add(faces[4], {0.5f, -0.5f, 0.0f}));  // BR
+                    mesh_vertices.push_back(Vector3Add(faces[4], {0.5f, 0.5f, 0.0f}));   // TR
+                    face_texture_ids.push_back(ids[4]);
+                }
+                if (draw_left) { 
+                    mesh_vertices.push_back(Vector3Add(faces[5], {0.5f, 0.5f, 0.0f}));   // TL
+                    mesh_vertices.push_back(Vector3Add(faces[5], {0.5f, -0.5f, 0.0f}));  // BL
+                    mesh_vertices.push_back(Vector3Add(faces[5], {-0.5f, -0.5f, 0.0f})); // BR
+                    mesh_vertices.push_back(Vector3Add(faces[5], {-0.5f, 0.5f, 0.0f}));  // TR
+                    face_texture_ids.push_back(ids[5]);
+                }
+            }
         }
-        if (draw_back) { 
-            mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, 0.5f, -0.5f}));  // TL
-            mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, -0.5f, -0.5f})); // BL
-            mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, -0.5f, 0.5f}));  // BR
-            mesh_vertices.push_back(Vector3Add(faces[1], {0.0f, 0.5f, 0.5f}));   // TR
-            face_texture_ids.push_back(ids[1]);
-        }
-        if (draw_up) { 
-            mesh_vertices.push_back(Vector3Add(faces[2], {-0.5f, 0.0f, -0.5f})); // TL
-            mesh_vertices.push_back(Vector3Add(faces[2], {-0.5f, 0.0f, 0.5f}));  // BL
-            mesh_vertices.push_back(Vector3Add(faces[2], {0.5f, 0.0f, 0.5f}));   // BR
-            mesh_vertices.push_back(Vector3Add(faces[2], {0.5f, 0.0f, -0.5f}));  // TR
-            face_texture_ids.push_back(ids[2]);
-        }
-        if (draw_down) { 
-            mesh_vertices.push_back(Vector3Add(faces[3], {-0.5f, 0.0f, 0.5f}));  // TL
-            mesh_vertices.push_back(Vector3Add(faces[3], {-0.5f, 0.0f, -0.5f})); // BL
-            mesh_vertices.push_back(Vector3Add(faces[3], {0.5f, 0.0f, -0.5f}));  // BR
-            mesh_vertices.push_back(Vector3Add(faces[3], {0.5f, 0.0f, 0.5f}));   // TR
-            face_texture_ids.push_back(ids[3]);
-        }
-        if (draw_right) { 
-            mesh_vertices.push_back(Vector3Add(faces[4], {-0.5f, 0.5f, 0.0f}));  // TL
-            mesh_vertices.push_back(Vector3Add(faces[4], {-0.5f, -0.5f, 0.0f})); // BL
-            mesh_vertices.push_back(Vector3Add(faces[4], {0.5f, -0.5f, 0.0f}));  // BR
-            mesh_vertices.push_back(Vector3Add(faces[4], {0.5f, 0.5f, 0.0f}));   // TR
-            face_texture_ids.push_back(ids[4]);
-        }
-        if (draw_left) { 
-            mesh_vertices.push_back(Vector3Add(faces[5], {0.5f, 0.5f, 0.0f}));   // TL
-            mesh_vertices.push_back(Vector3Add(faces[5], {0.5f, -0.5f, 0.0f}));  // BL
-            mesh_vertices.push_back(Vector3Add(faces[5], {-0.5f, -0.5f, 0.0f})); // BR
-            mesh_vertices.push_back(Vector3Add(faces[5], {-0.5f, 0.5f, 0.0f}));  // TR
-            face_texture_ids.push_back(ids[5]);
-        }
-        blocks_drawn++;
     }
-
-    map_model = asset_manager.create_complex_model(mesh_vertices, face_texture_ids);
-    cout << "Drew " << blocks_drawn << " blocks | " << face_texture_ids.size() << " faces\n";
+    cout << mesh_vertices.size() << " | " << face_texture_ids.size() << endl;
+    c->model = asset_manager.create_complex_model(mesh_vertices, face_texture_ids);
 }
 
 
@@ -240,45 +250,60 @@ void Engine::update() {
     BoundingBox player_object = CollisionManager::get_bounding_box(&player.position, &player.size);
     Vector3 reaction_vector {0,0,0};
     float aim_dist = 32.0f;
-    player.looking_at = -1;
+    player.looking_at = {-1,-1,-1,-1};
 
-    for (size_t i=0; i<world.objects.size(); ++i) {
-        Block *object = &world.objects[i];
-        if (!object->active)
+    for (size_t c=0; c<world.chunks.size(); ++c) {
+        Chunk &chunk = world.chunks[c];
+
+        // If chunk is too far from player
+        if ( Vector2Distance({player.position.x, player.position.z}, {chunk.x, chunk.z}) > CHUNK_SIZE ) {
             continue;
+        }
 
-        // is player looking at this object?
-        RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &object->bb);
-        if (rc.hit) {
-            if (rc.distance < aim_dist) {
-                aim_dist = rc.distance;
-                player.looking_at = i;
+        for (int i=0; i<CHUNK_SIZE; ++i) {
+            for (int j=0; j<CHUNK_SIZE; ++j) {
+                for (int k=0; k<=WORLD_HEIGHT_MAX; ++k) {
+                    if (chunk.blocks[i][j][k] == AIR || Vector3Distance(player.position, world.get_block_center(chunk.x,chunk.z,i,j,k)) > 5.0f) {
+                        continue;
+                    }
+
+                    // is player looking at this object?
+                    Vector3 size = {1,1,1};
+                    Vector3 center = world.get_block_center(chunk.x, chunk.z, i, j, k);
+                    BoundingBox bbb = CollisionManager::get_bounding_box(&center, &size);
+                    RayCollision rc = CollisionManager::get_ray_collision(&player.eye_position, &player.target, &bbb);
+                    if (rc.hit) {
+                        if (rc.distance < aim_dist) {
+                            aim_dist = rc.distance;
+                            player.looking_at = {i, j, k, c};
+                        }
+                    }
+
+                    
+                    // Collision
+                    float block_top = center.y + size.y/2.0f;
+                    float player_bottom = player.position.y - player.half_size_y;
+                    if (block_top <= player_bottom + 0.005f) {
+                        continue;
+                    }
+
+                    if (CollisionManager::check_collision(&player_object, &bbb)) {
+                        player.collision = true;
+                        reaction_vector = Vector3Add(reaction_vector,(CollisionManager::get_reaction_vector(&player_object, &bbb)));
+                    }
+
+                }
             }
-        }
-
-        // Collision
-        float block_top =object->center.y + object->size.y/2.0f;
-        float player_bottom = player.position.y - player.half_size_y;
-        if (block_top <= player_bottom + 0.005f) {
-            continue;
-        }
-
-        if (CollisionManager::check_collision(&player_object, object)) {
-            player.collision = true;
-            reaction_vector = Vector3Add(reaction_vector,(CollisionManager::get_reaction_vector(&player_object, &world.objects[i])));
-        }
+        } 
     }
+
     
     // mark object player is looking at
-    renderer.specific_render(player.looking_at);
-    if (player.looking_at != -1 && break_block_command) {
-        world.break_block(player.looking_at);
-        player.looking_at = -1;
-        renderer.specific_render(-1);
+    if (player.looking_at.x != -1 && player.looking_at.y != -1 && player.looking_at.z != -1 && player.looking_at.w != -1 && break_block_command) {
+        world.break_block(player.looking_at.x, player.looking_at.y, player.looking_at.z, player.looking_at.w);
+        generate_chunk_mesh(&world.chunks[player.looking_at.w]);
+        player.looking_at = {-1,-1,-1,-1};
         break_block_command = false;
-
-        asset_manager.unload_mesh();
-        generate_map_mesh();
     }
 
     if (player.collision) {
@@ -295,11 +320,9 @@ void Engine::update() {
 void Engine::run() {
     init();
     while(!WindowShouldClose()) {
-
         check_events();
         update();
-        renderer.render(map_model);
+        renderer.render(world.chunks);
     }
-    UnloadModel(map_model);
     CloseWindow();
 }

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "shapes.h"
+#include "world.h"
 #include <vector>
 
 extern Color bg_color;
@@ -27,5 +28,5 @@ public:
     void set_camera_position(Vector3);
     void set_target_position(Vector3);
     void specific_render(int);
-    void render(Model &model);
+    void render(std::vector<Chunk> &chunks);
 };
