@@ -81,3 +81,13 @@ Vector3 Algebra::normalize(Vector3 v) {
     nv.z /= norm;
     return nv;
 }
+
+float Algebra::distance3(Vector3Int a, Vector3Int b) {
+    Vector3Int c = {a.x-b.x, a.y-b.y, a.z-b.z};
+    return sqrt(c.x*c.x + c.y*c.y + c.z*c.z);
+}
+
+float Algebra::distance2(Vector2Int a, Vector2Int b) {
+    Vector2Int c = {a.x-b.x, a.z-b.z};
+    return sqrt(c.x*c.x + c.z*c.z);
+}

@@ -236,6 +236,13 @@ void Engine::update() {
         }
     }
 
+    if (player.is_walking) {
+        std::vector<size_t> new_chunks = world.chunks_to_generate(player.position.x, player.position.z);
+        for (auto i: new_chunks) {
+            generate_chunk_mesh(&world.chunks[i]);
+        }
+    }
+
     // Is no longer actively walking
     if (!player.is_walking && player.speed > 0.0f) {
         player.is_sprinting = false;
@@ -256,7 +263,7 @@ void Engine::update() {
         Chunk &chunk = world.chunks[c];
 
         // If chunk is too far from player
-        if ( Vector2Distance({player.position.x, player.position.z}, {chunk.x, chunk.z}) > CHUNK_SIZE ) {
+        if ( Algebra::distance2({(int)player.position.x, (int)player.position.z}, {chunk.x, chunk.z}) > CHUNK_SIZE ) {
             continue;
         }
 
@@ -275,7 +282,7 @@ void Engine::update() {
                     if (rc.hit) {
                         if (rc.distance < aim_dist) {
                             aim_dist = rc.distance;
-                            player.looking_at = {i, j, k, c};
+                            player.looking_at = {i, j, k, (int)c};
                         }
                     }
 
@@ -299,9 +306,9 @@ void Engine::update() {
 
     
     // mark object player is looking at
-    if (player.looking_at.x != -1 && player.looking_at.y != -1 && player.looking_at.z != -1 && player.looking_at.w != -1 && break_block_command) {
-        world.break_block(player.looking_at.x, player.looking_at.y, player.looking_at.z, player.looking_at.w);
-        generate_chunk_mesh(&world.chunks[player.looking_at.w]);
+    if (player.looking_at.d != -1 && break_block_command) {
+        world.break_block(player.looking_at);
+        generate_chunk_mesh(&world.chunks[player.looking_at.d]);
         player.looking_at = {-1,-1,-1,-1};
         break_block_command = false;
     }

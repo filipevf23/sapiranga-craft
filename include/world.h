@@ -2,7 +2,7 @@
 
 #include "raylib.h"
 #include <vector>
-#include "shapes.h"
+#include "linear_algebra.h"
 #include <cstdint>
 
 #define CHUNK_SIZE 16
@@ -43,10 +43,13 @@ public:
     World(bool=false, float=9.81f);
     ~World();
     
-    void break_block(int i, int j, int k, int c);
+    void break_block(Vector4Int &);
     Vector3 get_block_center(int, int, int, int, int);
     int get_height_from_pos(float x, float y, float z);
+    Vector4 get_block_from_pos(float x, float y, float z);
+    bool does_chunk_exist(int i, int j);
     float noise(int, int);
+    std::vector<size_t> chunks_to_generate(float, float);
     void generate_chunk(int, int);
     void generate_overworld();
 };

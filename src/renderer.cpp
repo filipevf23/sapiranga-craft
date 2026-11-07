@@ -63,11 +63,14 @@ void Renderer::specific_render(int i) {
 void Renderer::render(std::vector<Chunk> &chunks) {   
     static int aim_size = 18;
     static int aim_width = 2;
-    
+    Vector2Int camera_pos_2d = {(int)camera.position.x, (int)camera.position.z};
     BeginDrawing();
         BeginMode3D(camera);
             ClearBackground(bg_color);
             for (auto &c : chunks) {
+                if (Algebra::distance2(camera_pos_2d, {c.x, c.z}) > render_distance) {
+                    continue;
+                }
                 DrawModel(c.model, {0,0,0}, 1.0f, WHITE);
             }
         EndMode3D();

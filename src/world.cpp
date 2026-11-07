@@ -79,8 +79,8 @@ float World::noise(int x, int z) {
     return (pixel * size) + offset;
 }
 
-void World::break_block(int i, int j, int k, int c) {
-    chunks[c].blocks[i][j][k] = AIR;
+void World::break_block(Vector4Int &block) {
+    chunks[block.d].blocks[block.a][block.b][block.c] = AIR;
 }
 
 int World::get_height_from_pos(float x, float y, float z) {
@@ -105,31 +105,58 @@ int World::get_height_from_pos(float x, float y, float z) {
     return WORLD_HEIGHT_MIN;
 }
 
-int World::get_block_index(int global_x, int global_y, int global_z) {
-    int chunk_x = (int)floor((float)global_x / CHUNK_SIZE);
-    int chunk_z = (int)floor((float)global_z / CHUNK_SIZE);
-    
-    // revert offset
-    int cx = chunk_x - offset_xz;
-    int cy = global_y;
-    int cz = chunk_z - offset_xz;
-
-    if (cx < 0 || cx >= chunks_x || cy < WORLD_HEIGHT_MIN || cy > WORLD_HEIGHT_MAX || cz < 0 || cz >= chunks_z) {
-        return -1;
-    }
-
-    int local_x = global_x - chunk_x * CHUNK_SIZE;
-    int local_z = global_z - chunk_z * CHUNK_SIZE;
-
-    int chunk_idx = cx * (chunks_z) + cz;
-    int block_idx = local_x * (CHUNK_SIZE * (WORLD_HEIGHT_MAX+1)) + local_z * (WORLD_HEIGHT_MAX+1) + global_y;
-
-    return chunk_idx * (CHUNK_SIZE * CHUNK_SIZE * (WORLD_HEIGHT_MAX+1)) + block_idx;
-}
-
-
 Vector3 World::get_block_center(int c_x, int c_z, int i, int j, int k) {
     return Vector3 {c_x + i + 0.5f, k+0.5f, c_z + j + 0.5f};
+}
+
+Vector4 World::get_block_from_pos(float x, float y, float z) {
+    Vector4 indices; // i, j, k, chunk_index
+    int ix = (int)floor(x);
+    int iy = (int)floor(y);
+    int iz = (int)floor(z);
+    for (size_t chunk = 0; chunk < chunks.size(); ++chunk) {
+        Chunk &c = chunks[chunk];
+        if (c.x <= ix && (c.x + CHUNK_SIZE) > ix && c.z <= iz && (c.z + CHUNK_SIZE) > iz) {
+            ix -= c.x;
+            iz -= c.z;
+            indices.x = ix;
+            indices.y = iy;
+            indices.z = iz;
+            indices.w = chunk;
+            return indices;
+        }
+    }
+    // if not found
+    return {-1,-1,-1,-1};
+}
+
+bool World::does_chunk_exist(int i, int j) {
+    for (auto &c: chunks) {
+        if (c.x == i*CHUNK_SIZE && c.z == j*CHUNK_SIZE)
+            return true;
+    }
+    return false;
+}
+
+std::vector<size_t> World::chunks_to_generate(float pos_x, float pos_z) {
+    // Center = (pos_x, pos_z);
+    // x^2 + z^2 = r^2;
+    std::vector<size_t> indices;
+    int ipos_x = (int)floor(pos_x) / CHUNK_SIZE;
+    int ipos_z = (int)floor(pos_z) / CHUNK_SIZE;
+    for (int x = -render_distance; x <= render_distance; ++x) {
+        for (int z = -render_distance; z <= render_distance; ++z) {
+            if (x*x + z*z <= pow(render_distance,2)) {
+                size_t i = ipos_x + x;
+                size_t j = ipos_z + z;
+                if (!does_chunk_exist(i, j)) {
+                    indices.push_back(chunks.size()); // add index to array so engine can call for its model to me created!
+                    generate_chunk(i, j);
+                }
+            }
+        }
+    }
+    return indices;
 }
 
 void World::generate_chunk(int x, int z) {
@@ -157,37 +184,7 @@ void World::generate_chunk(int x, int z) {
     chunks.push_back(chunk);
 }
 
-void World::get_neighbors() {
-
-    for (size_t i=0; i<objects.size(); ++i) {
-        Block *b = &objects[i];
-        
-        int gx = (int)floor(b->center.x);
-        int gy = (int)floor(b->center.y);
-        int gz = (int)floor(b->center.z);
-
-        b->front = get_block_index(gx + 1, gy, gz);
-        b->back  = get_block_index(gx - 1, gy, gz);
-        b->up    = get_block_index(gx, gy + 1, gz);
-        b->down  = get_block_index(gx, gy - 1, gz);
-        b->right = get_block_index(gx, gy, gz + 1);
-        b->left  = get_block_index(gx, gy, gz - 1);
-
-        if (b->front != -1 && b->back != -1 && b->up != -1 && b->down != -1 && b->left != -1 && b->right != -1) {
-            if (objects[b->front].active && objects[b->back].active && objects[b->up].active && objects[b->down].active && objects[b->left].active && objects[b->right].active)
-                b->show = false;
-        }    
-    }
-}
-
 void World::generate_overworld() {
-
-    for (int i=0; i<chunks_x; i++) {
-        for (int j=0; j<chunks_z; j++) {
-            generate_chunk(i + offset_xz, j + offset_xz);
-        }
-    }
-
+    chunks_to_generate(0,0);
     std::cout << "created " << chunks.size() << " chunks." << std::endl;
-    //get_neighbors();
 }

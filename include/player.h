@@ -2,10 +2,11 @@
 
 #include "raylib.h"
 #include <vector>
+#include "linear_algebra.h"
 
-#define NORMAL_SPEED 4.317f
-#define SNEAK_SPEED 1.295f
-#define SPRINT_SPEED 5.612f
+#define NORMAL_SPEED 4.8f
+#define SNEAK_SPEED 1.5f
+#define SPRINT_SPEED 6.0f
 
 class Player {
 public:
@@ -24,7 +25,7 @@ public:
     Vector3 target;
     float speed = NORMAL_SPEED;
     float drag = -SNEAK_SPEED;
-    Vector4 looking_at {-1,-1,-1,-1}; // indices of object & chunk that player is looking at
+    Vector4Int looking_at {-1,-1,-1,-1}; // indices of block that player is looking at
 
     void rotate(double);
     Vector3 move_forward(float = 0.1);
