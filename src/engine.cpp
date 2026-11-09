@@ -69,7 +69,7 @@ void Engine::generate_chunk_mesh(Chunk *c) {
         for (int j=0; j<CHUNK_SIZE; ++j) {
             for (int k=0; k<=WORLD_HEIGHT_MAX; ++k) {
 
-                if (c->blocks[i][j][k] == AIR) continue;
+                if (c->blocks[i][j][k] == ItemID::AIR) continue;
 
                 int front = i+1;
                 int back = i-1;
@@ -88,12 +88,12 @@ void Engine::generate_chunk_mesh(Chunk *c) {
                     Vector3Add(center, normal_left)
                 };
 
-                bool draw_front = front >= CHUNK_SIZE ? true : c->blocks[front][j][k] == AIR;
-                bool draw_back = back < 0 ? true : c->blocks[back][j][k] == AIR;
-                bool draw_up = up >= WORLD_HEIGHT_MAX ? true : c->blocks[i][j][up] == AIR;
-                bool draw_down = down < 0 ? true: c->blocks[i][j][down] == AIR;
-                bool draw_right = right >= CHUNK_SIZE ? true : c->blocks[i][right][k] == AIR;
-                bool draw_left = left < 0 ? true : c->blocks[i][left][k] == AIR;
+                bool draw_front = front >= CHUNK_SIZE ? true : c->blocks[front][j][k] == ItemID::AIR;
+                bool draw_back = back < 0 ? true : c->blocks[back][j][k] == ItemID::AIR;
+                bool draw_up = up >= WORLD_HEIGHT_MAX ? true : c->blocks[i][j][up] == ItemID::AIR;
+                bool draw_down = down < 0 ? true: c->blocks[i][j][down] == ItemID::AIR;
+                bool draw_right = right >= CHUNK_SIZE ? true : c->blocks[i][right][k] == ItemID::AIR;
+                bool draw_left = left < 0 ? true : c->blocks[i][left][k] == ItemID::AIR;
 
                 if (!draw_front && !draw_back && !draw_up && !draw_down && !draw_right && !draw_left) {
                     continue;
@@ -155,6 +155,23 @@ void Engine::generate_chunk_mesh(Chunk *c) {
 /////////  Engine Pipeline  //////////
 
 void Engine::check_events() {
+
+    if (IsKeyDown(KEY_E)) {
+        player.is_inventory_open = !player.is_inventory_open;
+        // TODO: Change Camera to stop following player and become 2D with mouse showing!
+    }
+
+    
+
+    if (player.is_inventory_open) {
+
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            // TODO: Hold item with mouse
+        }
+
+        return;
+    }
+        
 
     if (IsKeyDown(KEY_LEFT_SHIFT)) {
         player.is_sneaking = true;
@@ -270,7 +287,7 @@ void Engine::update() {
         for (int i=0; i<CHUNK_SIZE; ++i) {
             for (int j=0; j<CHUNK_SIZE; ++j) {
                 for (int k=0; k<=WORLD_HEIGHT_MAX; ++k) {
-                    if (chunk.blocks[i][j][k] == AIR || Vector3Distance(player.position, world.get_block_center(chunk.x,chunk.z,i,j,k)) > 5.0f) {
+                    if (chunk.blocks[i][j][k] == ItemID::AIR || Vector3Distance(player.position, world.get_block_center(chunk.x,chunk.z,i,j,k)) > 5.0f) {
                         continue;
                     }
 
@@ -324,12 +341,26 @@ void Engine::update() {
     
 }
 
+void Engine::draw() {
+    BeginDrawing();
+        ClearBackground(bg_color);
+        BeginMode3D(renderer.camera);
+            renderer.render_chunks(world.chunks);
+        EndMode3D();
+        DrawFPS(10,10);
+        renderer.show_crosshair();
+        if (player.is_inventory_open) {
+            renderer.show_inventory(player.inventory);
+        }
+    EndDrawing();
+}
+
 void Engine::run() {
     init();
     while(!WindowShouldClose()) {
         check_events();
         update();
-        renderer.render(world.chunks);
+        draw();
     }
     CloseWindow();
 }

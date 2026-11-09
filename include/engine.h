@@ -30,6 +30,7 @@ public:
     void init();
     void update();
     void check_events(); 
+    void draw();
     void run();
 
     void generate_map_mesh();

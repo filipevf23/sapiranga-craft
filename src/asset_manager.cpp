@@ -77,21 +77,21 @@ void AssetManager::load_texture_ids(int a, int b, int c, int d, int e, int f, in
     dest[5] = f;
 }
 
-void AssetManager::get_block_textures(int id, int *dest) {
+void AssetManager::get_block_textures(ItemID id, int *dest) {
     switch (id) {
-        case B_PODZOL:
+        case ItemID::B_PODZOL:
             load_texture_ids(PODZOL2, PODZOL2, PODZOL1, DIRT, PODZOL2, PODZOL2, dest);
             break;
 
-        case B_DROPPER:
+        case ItemID::B_DROPPER:
             load_texture_ids(DROPPER1, DROPPER1, DROPPER2, DROPPER1, DROPPER1, DROPPER1, dest);
             break;
 
-        case B_GRASS:
+        case ItemID::B_GRASS:
             load_texture_ids(GRASSBLOCK, GRASSBLOCK, GRASSBASETEXTURE, DIRT, GRASSBLOCK, GRASSBLOCK, dest);
             break;
 
-        case B_DIRT:
+        case ItemID::B_DIRT:
             load_texture_ids(DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, dest);
             break;
 

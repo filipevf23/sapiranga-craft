@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include <vector>
 #include "linear_algebra.h"
+#include "inventory.h"
 
 #define NORMAL_SPEED 4.8f
 #define SNEAK_SPEED 1.5f
@@ -16,6 +17,7 @@ public:
     bool is_sprinting {false};
     bool is_sneaking {false};
     bool is_breaking {false};
+    bool is_inventory_open {false};
     float fall_speed {0.0f};
     float eye_height {0.72}; // from middle of the body
     Vector3 size = { 0.6f, 1.8f, 0.6f };
@@ -26,6 +28,8 @@ public:
     float speed = NORMAL_SPEED;
     float drag = -SNEAK_SPEED;
     Vector4Int looking_at {-1,-1,-1,-1}; // indices of block that player is looking at
+    Inventory inventory;
+
 
     void rotate(double);
     Vector3 move_forward(float = 0.1);

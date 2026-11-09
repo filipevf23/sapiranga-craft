@@ -3,14 +3,14 @@
 #include "raylib.h"
 #include <vector>
 #include "linear_algebra.h"
-#include <cstdint>
+#include "items.h"
 
 #define CHUNK_SIZE 16
 #define WORLD_HEIGHT_MIN 0
 #define WORLD_HEIGHT_MAX 255
 
 typedef struct Chunk {
-    uint8_t blocks[CHUNK_SIZE][CHUNK_SIZE][WORLD_HEIGHT_MAX+1];
+    ItemID blocks[CHUNK_SIZE][CHUNK_SIZE][WORLD_HEIGHT_MAX+1];
     int x;
     int z;
     Model model;
@@ -23,7 +23,7 @@ public:
     float gravity_force;
     double floor_height = 0.0;
     int seed;
-    int render_distance = 12;
+    int render_distance = 16;
     
     int chunks_x;
     int chunks_z;

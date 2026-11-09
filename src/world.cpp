@@ -1,5 +1,4 @@
 #include "world.h"
-#include "map.h"
 #include "math.h"
 #include <iostream>
 #include "utils.h"
@@ -80,7 +79,7 @@ float World::noise(int x, int z) {
 }
 
 void World::break_block(Vector4Int &block) {
-    chunks[block.d].blocks[block.a][block.b][block.c] = AIR;
+    chunks[block.d].blocks[block.a][block.b][block.c] = ItemID::AIR;
 }
 
 int World::get_height_from_pos(float x, float y, float z) {
@@ -96,7 +95,7 @@ int World::get_height_from_pos(float x, float y, float z) {
     for (auto &c : chunks) {
         if (c.x <= ix && (c.x+CHUNK_SIZE) > ix && c.z <= iz && (c.z+CHUNK_SIZE) > iz) {
             for (int height=iy; height>WORLD_HEIGHT_MIN; --height) {
-                if (c.blocks[ix - c.x][iz - c.z][height] != AIR)
+                if (c.blocks[ix - c.x][iz - c.z][height] != ItemID::AIR)
                     return height;
             }
         }
@@ -146,7 +145,7 @@ std::vector<size_t> World::chunks_to_generate(float pos_x, float pos_z) {
     int ipos_z = (int)floor(pos_z) / CHUNK_SIZE;
     for (int x = -render_distance; x <= render_distance; ++x) {
         for (int z = -render_distance; z <= render_distance; ++z) {
-            if (x*x + z*z <= pow(render_distance,2)) {
+            if (x*x + z*z <= render_distance*render_distance) {
                 size_t i = ipos_x + x;
                 size_t j = ipos_z + z;
                 if (!does_chunk_exist(i, j)) {
@@ -169,11 +168,11 @@ void World::generate_chunk(int x, int z) {
             int global_z = z * CHUNK_SIZE + j;
             hs[i*CHUNK_SIZE + j] = (int)std::floor(noise(global_x, global_z));
             for (int height=WORLD_HEIGHT_MIN; height<=WORLD_HEIGHT_MAX; height++) {
-                BlockID id;
+                ItemID id;
                 if (height > hs[i*CHUNK_SIZE + j]) {
-                    id = AIR;
+                    id = ItemID::AIR;
                 } else {
-                    id = height == hs[i*CHUNK_SIZE + j] ? B_GRASS : B_DIRT;
+                    id = height == hs[i*CHUNK_SIZE + j] ? ItemID::B_GRASS : ItemID::B_DIRT;
                 }
                 chunk.blocks[i][j][height] = id;
             }

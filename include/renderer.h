@@ -4,17 +4,17 @@
 #include "shapes.h"
 #include "world.h"
 #include <vector>
+#include "inventory.h"
 
 extern Color bg_color;
 extern Color wall_color;
 extern Color line_color;
 
 class Renderer {
-private:
+public:
     Camera3D camera = { 0 };
     int specific = -1;
 
-public:
     int render_distance {64};
     Renderer();
     void update_camera(Vector3, float);
@@ -28,5 +28,8 @@ public:
     void set_camera_position(Vector3);
     void set_target_position(Vector3);
     void specific_render(int);
-    void render(std::vector<Chunk> &chunks);
+
+    void show_crosshair();
+    void show_inventory(Inventory &inventory);
+    void render_chunks(std::vector<Chunk> &chunks);
 };

@@ -60,22 +60,24 @@ void Renderer::specific_render(int i) {
     specific = i;
 }
 
-void Renderer::render(std::vector<Chunk> &chunks) {   
+void Renderer::show_crosshair() {
     static int aim_size = 18;
     static int aim_width = 2;
+    DrawRectangle((GetScreenWidth() - aim_size) / 2, (GetScreenHeight() - aim_width) / 2, aim_size, aim_width, WHITE);
+    DrawRectangle((GetScreenWidth() - aim_width) / 2, (GetScreenHeight() - aim_size) / 2, aim_width, aim_size, WHITE);
+}
+
+void Renderer::show_inventory(Inventory &inventory) {
+    
+}
+
+void Renderer::render_chunks(std::vector<Chunk> &chunks) {   
+    
     Vector2Int camera_pos_2d = {(int)camera.position.x, (int)camera.position.z};
-    BeginDrawing();
-        BeginMode3D(camera);
-            ClearBackground(bg_color);
-            for (auto &c : chunks) {
-                if (Algebra::distance2(camera_pos_2d, {c.x, c.z}) > render_distance) {
-                    continue;
-                }
-                DrawModel(c.model, {0,0,0}, 1.0f, WHITE);
-            }
-        EndMode3D();
-        DrawFPS(10,10);
-        DrawRectangle((GetScreenWidth() - aim_size) / 2, (GetScreenHeight() - aim_width) / 2, aim_size, aim_width, WHITE);
-        DrawRectangle((GetScreenWidth() - aim_width) / 2, (GetScreenHeight() - aim_size) / 2, aim_width, aim_size, WHITE);
-    EndDrawing();
+    for (auto &c : chunks) {
+        if (Algebra::distance2(camera_pos_2d, {c.x, c.z}) > render_distance) {
+            continue;
+        }
+        DrawModel(c.model, {0,0,0}, 1.0f, WHITE);
+    }
 }
