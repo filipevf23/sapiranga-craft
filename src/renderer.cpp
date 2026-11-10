@@ -67,8 +67,13 @@ void Renderer::show_crosshair() {
     DrawRectangle((GetScreenWidth() - aim_width) / 2, (GetScreenHeight() - aim_size) / 2, aim_width, aim_size, WHITE);
 }
 
-void Renderer::show_inventory(Inventory &inventory) {
-    
+void Renderer::show_inventory() {
+    int h = GetScreenHeight();
+    int w = GetScreenWidth();
+    float scale = 1.6;
+    for (auto &s: asset_manager.inventory_sprites) {
+        DrawTextureEx(s.texture, {w/2 + scale *(s.pos_x - w/2) , h/2 + scale*(s.pos_y - h/2)}, 0.0f, scale, WHITE);
+    }
 }
 
 void Renderer::render_chunks(std::vector<Chunk> &chunks) {   

@@ -420,6 +420,8 @@ enum TextureID {
     GOLDENNUGGET,
     IRONSWORD,
     LADDER,
+
+    NOTHING,
 };
 
 
@@ -444,8 +446,10 @@ enum class ItemID : uint8_t {
     EMPTY,
     I_STONE,
     I_COBBLESTONE,
+    I_DIAMONDHOE,
 };
 
 namespace ItemInformation {
     bool is_item_stackable(ItemID);
+    TextureID get_item_texture(ItemID);
 }

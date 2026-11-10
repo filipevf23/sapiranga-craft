@@ -12,7 +12,7 @@ typedef struct {
 
 class Inventory {
 public:
-    Item inventory [9 * 4];
+    Item inventory [4][9];
 
     Item helmet;
     Item chestplate;
@@ -21,8 +21,8 @@ public:
     int hotbar_index = 27;
     int capacity = 36;
 
+    Inventory();
     Item* get_hotbar(); // get hotbar items
-
     bool add_to_inventory(ItemID);
     
 };

@@ -5,3 +5,10 @@ bool ItemInformation::is_item_stackable(ItemID id) {
         return true;
     return false;
 }
+
+TextureID ItemInformation::get_item_texture(ItemID id) {
+    switch(id) {
+    case ItemID::I_DIAMONDHOE: return DIAMONDHOE;
+    default: return NOTHING;
+    }
+}

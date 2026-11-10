@@ -8,9 +8,12 @@ using std::cout, std::endl, std::vector, std::string;
 
 AssetManager::AssetManager() : texture_size {1} {
 
-    minecraft_texture = LoadTextureFromImage(LoadImage("assets/minecraft-textures.png"));
+    minecraft_image = LoadImage("assets/minecraft-textures.png");
+    minecraft_texture = LoadTextureFromImage(minecraft_image);
     GenTextureMipmaps(&minecraft_texture);
     SetTextureFilter(minecraft_texture, TEXTURE_FILTER_POINT);
+
+    inventory = LoadTextureFromImage(LoadImage("assets/minecraft-inventory.png"));
 
 }
 
@@ -64,8 +67,39 @@ void AssetManager::unload_mesh() {
     UnloadMesh(mesh);
 }
 
-bool AssetManager::load_minecraft_textures(int id) {
-    return true;
+Texture2D AssetManager::load_minecraft_texture(int id) {
+    static float size = 16.0f;
+    static int png_column_size = 32;
+    Rectangle cropped_png = {  (id % png_column_size)*size, (id / png_column_size) * size, size, size };
+    Texture2D t = LoadTextureFromImage(ImageFromImage(minecraft_image, cropped_png));
+    return t;
+}
+
+void AssetManager::create_inventory_textures(Inventory &inv) {
+    // Create texture of inventory and every item inside it
+    // * This function must be called everytime there is a change in inventory!
+    static int item_size = 35;
+    static float img_width = 331.0f;
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+    int offset_x = sw/2 - img_width/2 + 16;
+    int offset_y = sh/2 + 8;
+
+    std::vector<Sprite2D> sprites;
+
+    inventory_sprites.clear();
+
+    inventory_sprites.push_back({inventory, sw/2 - 165, sh/2 - 156});
+    for (int j=0; j<4; j++) {
+        if (j == 4) {
+            offset_y += 20;
+        }
+        for (int i = 0; i < 9; ++i) {
+            TextureID id = ItemInformation::get_item_texture(inv.inventory[j][i].item);
+            if (id == NOTHING) continue;
+            inventory_sprites.push_back({load_minecraft_texture(id), offset_x + i*item_size, offset_y + j*item_size});
+        }
+    }
 }
 
 void AssetManager::load_texture_ids(int a, int b, int c, int d, int e, int f, int *dest) {

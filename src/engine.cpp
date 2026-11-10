@@ -21,6 +21,10 @@ void Engine::init() {
     renderer.set_camera_position(player.eye_position);
     renderer.update_camera(player.eye_position, mouse_sensitivity);
     player.target = renderer.get_target();
+    for (int i=0; i<10; ++i) {
+        player.inventory.add_to_inventory(ItemID::I_DIAMONDHOE);
+    } 
+    renderer.asset_manager.create_inventory_textures(player.inventory);
     for (auto &c : world.chunks) {
         generate_chunk_mesh(&c);
     }
@@ -100,7 +104,7 @@ void Engine::generate_chunk_mesh(Chunk *c) {
                 }
 
                 int ids[6];
-                asset_manager.get_block_textures(c->blocks[i][j][k], ids);
+                renderer.asset_manager.get_block_textures(c->blocks[i][j][k], ids);
 
                 if (draw_front) { 
                     mesh_vertices.push_back(Vector3Add(faces[0], {0.0f, 0.5f, 0.5f}));   // TL
@@ -148,7 +152,7 @@ void Engine::generate_chunk_mesh(Chunk *c) {
         }
     }
     cout << mesh_vertices.size() << " | " << face_texture_ids.size() << endl;
-    c->model = asset_manager.create_complex_model(mesh_vertices, face_texture_ids);
+    c->model = renderer.asset_manager.create_complex_model(mesh_vertices, face_texture_ids);
 }
 
 
@@ -156,9 +160,11 @@ void Engine::generate_chunk_mesh(Chunk *c) {
 
 void Engine::check_events() {
 
-    if (IsKeyDown(KEY_E)) {
+    if (IsKeyPressed(KEY_E)) {
+        if (!player.is_inventory_open) 
+            EnableCursor();
+        else DisableCursor();
         player.is_inventory_open = !player.is_inventory_open;
-        // TODO: Change Camera to stop following player and become 2D with mouse showing!
     }
 
     
@@ -336,7 +342,9 @@ void Engine::update() {
     }
     
     renderer.set_camera_position(player.eye_position);
-    renderer.update_camera(player.eye_position, mouse_sensitivity);
+
+    if (!player.is_inventory_open) 
+        renderer.update_camera(player.eye_position, mouse_sensitivity);
     player.target = renderer.get_target();
     
 }
@@ -350,7 +358,7 @@ void Engine::draw() {
         DrawFPS(10,10);
         renderer.show_crosshair();
         if (player.is_inventory_open) {
-            renderer.show_inventory(player.inventory);
+            renderer.show_inventory();
         }
     EndDrawing();
 }

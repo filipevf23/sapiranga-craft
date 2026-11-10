@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "shapes.h"
 #include "world.h"
+#include "asset_manager.h"
 #include <vector>
 #include "inventory.h"
 
@@ -12,6 +13,7 @@ extern Color line_color;
 
 class Renderer {
 public:
+    AssetManager asset_manager;
     Camera3D camera = { 0 };
     int specific = -1;
 
@@ -28,8 +30,9 @@ public:
     void set_camera_position(Vector3);
     void set_target_position(Vector3);
     void specific_render(int);
+    void change_camera_mode();
 
     void show_crosshair();
-    void show_inventory(Inventory &inventory);
+    void show_inventory();
     void render_chunks(std::vector<Chunk> &chunks);
 };
