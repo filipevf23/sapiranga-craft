@@ -1,7 +1,6 @@
 #include "asset_manager.h"
 #include <iostream>
 #include <stdexcept>
-#include <stdlib.h>
 #include "raymath.h"
 
 using std::cout, std::endl, std::vector, std::string;

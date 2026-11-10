@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include "shapes.h"
 #include "world.h"
 #include "asset_manager.h"
 #include <vector>
-#include "inventory.h"
 
 extern Color bg_color;
 extern Color wall_color;
@@ -30,7 +28,6 @@ public:
     void set_camera_position(Vector3);
     void set_target_position(Vector3);
     void specific_render(int);
-    void change_camera_mode();
 
     void show_crosshair();
     void show_inventory();

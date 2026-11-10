@@ -19,7 +19,7 @@ const ComponentType MAX_COMPONENTS = 32;
 class Engine {
 private:
     Renderer renderer;
-    AssetManager asset_manager;
+    
     World world {true, 32.0f};
     Player player;
     float mouse_sensitivity {0.05};
@@ -33,7 +33,6 @@ public:
     void draw();
     void run();
 
-    void generate_map_mesh();
     void generate_chunk_mesh(Chunk *c);
     bool is_face_visible(const Vector3 *face_center, const Vector3 *object_center, const Vector3 *camera_pos);
     float get_player_floor();
